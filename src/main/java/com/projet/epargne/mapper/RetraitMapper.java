@@ -1,0 +1,15 @@
+package com.projet.epargne.mapper;
+
+import com.projet.epargne.dto.RetraitDto;
+import com.projet.epargne.entities.Retrait;
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+
+@Mapper
+public interface RetraitMapper {
+    public RetraitMapper INSTANCE = Mappers.getMapper(RetraitMapper.class);
+
+    public RetraitDto entityToDto(Retrait retrait);
+
+    public Retrait dtoToEntity(RetraitDto dto);
+}
