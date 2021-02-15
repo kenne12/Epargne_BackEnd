@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -29,6 +27,12 @@ public class Client implements Serializable {
     private boolean etat;
     @Column(name = "fraiscarnet")
     private int fraisCarnet;
-    @Column(name = "numerocarnet", nullable = false)
+    @Column(name = "numerocarnet", nullable = false, unique = true)
     private int numeroCarnet;
+
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    private Collection<Retrait> retraits;
+
+    @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    private Collection<Versement> versements;
 }

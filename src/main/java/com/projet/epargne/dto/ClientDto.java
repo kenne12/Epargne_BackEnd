@@ -1,6 +1,10 @@
 package com.projet.epargne.dto;
 
+import com.projet.epargne.entities.Retrait;
+import com.projet.epargne.entities.Versement;
 import lombok.Data;
+
+import java.util.Collection;
 
 @Data
 public class ClientDto {
@@ -14,4 +18,6 @@ public class ClientDto {
     private boolean etat;
     private int fraisCarnet;
     private int numeroCarnet;
+    private Collection<Retrait> retraits;
+    private Collection<Versement> versements;
 }

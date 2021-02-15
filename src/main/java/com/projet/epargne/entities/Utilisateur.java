@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collection;
 
 @Entity
 @Data
@@ -29,4 +27,6 @@ public class Utilisateur implements Serializable {
     private String password;
     private String photo;
     private boolean actif;
+    @OneToMany(mappedBy = "utilisateur", fetch = FetchType.LAZY)
+    private Collection<Privilege> privileges;
 }
