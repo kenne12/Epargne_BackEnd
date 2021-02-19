@@ -2,13 +2,15 @@ package com.projet.epargne.dto;
 
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.entities.Versement;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.Collection;
 
 @Data
+@AllArgsConstructor
 public class ClientDto {
-    private Integer idclient;
+    private Long idclient;
     private String nom;
     private String prenom;
     private String cni;

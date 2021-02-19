@@ -15,7 +15,7 @@ import java.util.Collection;
 public class Client implements Serializable {
     @Id
     @Basic(optional = false)
-    private Integer idclient;
+    private Long idclient;
     @Column(length = 50, nullable = false)
     private String nom;
     @Column(length = 50)
