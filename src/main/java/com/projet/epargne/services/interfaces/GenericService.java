@@ -21,7 +21,7 @@ public interface GenericService<T> {
 	 * @param id the id
 	 * @return the t
 	 */
-	public T findById(long id);
+	public T findById(Long id);
 	
 	/**
 	 * Save.

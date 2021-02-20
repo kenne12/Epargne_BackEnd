@@ -1,4 +1,8 @@
 package com.projet.epargne.services.interfaces;
 
-public interface UtilisateurService {
+import com.projet.epargne.dto.UtilisateurDto;
+
+public interface UtilisateurService extends GenericService<UtilisateurDto> {
+
+    Integer nextValue();
 }

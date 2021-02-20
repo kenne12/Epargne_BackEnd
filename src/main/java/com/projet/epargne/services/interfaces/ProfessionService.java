@@ -1,4 +1,6 @@
 package com.projet.epargne.services.interfaces;
 
-public interface ProfessionService {
+import com.projet.epargne.dto.ProfessionDto;
+
+public interface ProfessionService extends GenericService<ProfessionDto> {
 }

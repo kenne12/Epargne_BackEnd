@@ -10,7 +10,7 @@ import java.util.Collection;
 @Data
 @AllArgsConstructor
 public class ClientDto {
-    private Long idclient;
+    private Integer idclient;
     private String nom;
     private String prenom;
     private String cni;

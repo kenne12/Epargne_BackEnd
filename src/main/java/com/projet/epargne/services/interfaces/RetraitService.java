@@ -1,4 +1,8 @@
 package com.projet.epargne.services.interfaces;
 
-public interface RetraitService {
+import com.projet.epargne.dto.RetraitDto;
+
+public interface RetraitService extends GenericService<RetraitDto> {
+
+    public Long nextValue();
 }

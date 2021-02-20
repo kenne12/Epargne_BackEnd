@@ -1,5 +1,4 @@
 package com.projet.epargne.services.impl;
-
 import com.projet.epargne.dao.ClientRepository;
 import com.projet.epargne.dto.ClientDto;
 import com.projet.epargne.entities.Client;
@@ -8,11 +7,13 @@ import com.projet.epargne.services.interfaces.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@Transactional
 public class ClientServiceImpl implements ClientService {
 
     @Autowired
@@ -26,8 +27,8 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDto findById(long id) {
-        Optional<Client> client = clientRepository.findById(id);
+    public ClientDto findById(Long id) {
+        Optional<Client> client = clientRepository.findById(id.intValue());
         if (client.isPresent()) {
             return ClientMapper.INSTANCE.entityToDto(client.get());
         }
@@ -38,6 +39,7 @@ public class ClientServiceImpl implements ClientService {
     public ClientDto save(ClientDto dto) {
         Client client = ClientMapper.INSTANCE.dtoToEntity(dto);
         if (client != null) {
+            client.setIdclient(next());
             return ClientMapper.INSTANCE.entityToDto(clientRepository.save(client));
         }
         return null;
@@ -54,6 +56,19 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void deleteById(Long id) {
-        clientRepository.deleteById(id);
+        clientRepository.deleteById(id.intValue());
+    }
+
+    @Override
+    public Integer nextValue() {
+        return this.next();
+    }
+
+    private Integer next() {
+        Integer nextValue = clientRepository.nexId();
+        if (nextValue == null || nextValue == 0) {
+            return nextValue = 1;
+        }
+        return nextValue + 1;
     }
 }

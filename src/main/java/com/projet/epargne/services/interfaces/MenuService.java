@@ -1,4 +1,6 @@
 package com.projet.epargne.services.interfaces;
 
-public interface MenuService {
+import com.projet.epargne.dto.MenuDto;
+
+public interface MenuService extends GenericService<MenuDto> {
 }
