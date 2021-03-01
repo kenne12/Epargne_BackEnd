@@ -4,6 +4,7 @@ import com.projet.epargne.dao.VersementRepository;
 import com.projet.epargne.dto.VersementDto;
 import com.projet.epargne.entities.Versement;
 import com.projet.epargne.mapper.VersementMapper;
+import com.projet.epargne.services.interfaces.EpargneService;
 import com.projet.epargne.services.interfaces.VersementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ public class VersementServiceImpl implements VersementService {
 
     @Autowired
     private VersementRepository versementRepository;
+
+    @Autowired
+    private EpargneService epargneService;
 
     @Override
     public Iterable<VersementDto> getAll() {
@@ -40,7 +44,8 @@ public class VersementServiceImpl implements VersementService {
     public VersementDto save(VersementDto dto) {
         Versement versement = VersementMapper.INSTANCE.dtoToEntity(dto);
         if (versement != null) {
-            return VersementMapper.INSTANCE.entityToDto(versementRepository.save(versement));
+            Versement v = epargneService.saveVersement(versement);
+            return VersementMapper.INSTANCE.entityToDto(v);
         }
         return null;
     }
@@ -49,14 +54,15 @@ public class VersementServiceImpl implements VersementService {
     public VersementDto edit(VersementDto dto) {
         Versement versement = VersementMapper.INSTANCE.dtoToEntity(dto);
         if (versement != null && versement.getClient() != null) {
-            return VersementMapper.INSTANCE.entityToDto(versementRepository.save(versement));
+            Versement v = epargneService.editVersement(versement);
+            return VersementMapper.INSTANCE.entityToDto(v);
         }
         return null;
     }
 
     @Override
     public void deleteById(Long id) {
-        versementRepository.deleteById(id);
+        epargneService.deleteVersement(id);
     }
 
     @Override

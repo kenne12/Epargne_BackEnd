@@ -1,14 +1,14 @@
 package com.projet.epargne.services.impl;
 
 import com.projet.epargne.dao.CaisseRepository;
-import com.projet.epargne.dto.ClientDto;
-import com.projet.epargne.dto.RetraitDto;
-import com.projet.epargne.dto.VersementDto;
+import com.projet.epargne.dao.ClientRepository;
+import com.projet.epargne.dao.RetraitRepository;
+import com.projet.epargne.dao.VersementRepository;
 import com.projet.epargne.entities.Caisse;
-import com.projet.epargne.services.interfaces.ClientService;
+import com.projet.epargne.entities.Client;
+import com.projet.epargne.entities.Retrait;
+import com.projet.epargne.entities.Versement;
 import com.projet.epargne.services.interfaces.EpargneService;
-import com.projet.epargne.services.interfaces.RetraitService;
-import com.projet.epargne.services.interfaces.VersementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,70 +22,77 @@ public class EpargneServiceImpl implements EpargneService {
     private CaisseRepository caisseRepository;
 
     @Autowired
-    private VersementService versementService;
+    private VersementRepository versementRepository;
 
     @Autowired
-    private RetraitService retraitService;
+    private RetraitRepository retraitRepository;
+
 
     @Autowired
-    private ClientService clientService;
+    private ClientRepository clientRepository;
 
     @Override
-    public VersementDto saveVersement(VersementDto versementDto) {
-        this.updateCaisse("+", (int) versementDto.getMontant());
-        ClientDto c = this.updateClient(versementDto.getClient().getIdclient().longValue(), versementDto.getMontant(), "+");
-        versementDto.setMontant(c.getSolde());
-        versementDto.setIdVersement(versementService.nextValue());
-        return versementService.save(versementDto);
+    public Versement saveVersement(Versement versement) {
+        this.updateCaisse("+", (int) versement.getMontant());
+        Client c = this.updateClient(versement.getClient().getIdclient().longValue(), versement.getMontant(), "+");
+        versement.setSolde(c.getSolde());
+
+        Long id = versementRepository.nextValue();
+        versement.setIdVersement(id == null ? 1L : id + 1);
+        return versementRepository.save(versement);
+
     }
 
     @Override
-    public VersementDto editVersement(VersementDto versementDto) {
-        VersementDto vAvant = versementService.findById(versementDto.getIdVersement());
+    public Versement editVersement(Versement versement) {
+        Versement vAvant = versementRepository.findById(versement.getIdVersement()).get();
         this.updateCaisse("-", (int) vAvant.getMontant());
-        this.updateClient(versementDto.getClient().getIdclient().longValue(), vAvant.getMontant(), "-");
+        this.updateClient(vAvant.getClient().getIdclient().longValue(), vAvant.getMontant(), "-");
 
-        this.updateCaisse("+", (int) versementDto.getMontant());
-        ClientDto c = this.updateClient(versementDto.getClient().getIdclient().longValue(), versementDto.getMontant(), "-");
+        this.updateCaisse("+", (int) versement.getMontant());
+        Client c = this.updateClient(versement.getClient().getIdclient().longValue(), versement.getMontant(), "-");
 
-        versementDto.setSolde((double) c.getSolde());
-        return versementService.edit(versementDto);
+        versement.setSolde((double) c.getSolde());
+        return versementRepository.save(versement);
     }
 
     @Override
-    public void deleteVersement(VersementDto versementDto) {
-        this.updateCaisse("-", (int) versementDto.getMontant());
-        this.updateClient(versementDto.getClient().getIdclient().longValue(), versementDto.getMontant(), "-");
+    public void deleteVersement(Long idVersement) {
+        Versement versement = versementRepository.findById(idVersement).get();
+        this.updateCaisse("-", (int) versement.getMontant());
+        this.updateClient(versement.getClient().getIdclient().longValue(), versement.getMontant(), "-");
+        versementRepository.deleteById(idVersement);
     }
 
     @Override
-    public RetraitDto saveRetrait(RetraitDto retraitDto) {
-        Double montant = retraitDto.getMontant() + retraitDto.getCommission();
+    public Retrait saveRetrait(Retrait retrait) {
+        Double montant = retrait.getMontant() + retrait.getCommission();
         updateCaisse("-", montant.intValue());
-        ClientDto c = this.updateClient(retraitDto.getClient().getIdclient().longValue(), retraitDto.getMontant(), "-");
-        retraitDto.setSolde((double) c.getSolde());
-        retraitDto.setIdRetrait(retraitService.nextValue());
-        return retraitService.save(retraitDto);
+        Client c = this.updateClient(retrait.getClient().getIdclient().longValue(), retrait.getMontant(), "-");
+        retrait.setSolde((double) c.getSolde());
+        Long nexId = retraitRepository.nextValue();
+        retrait.setIdRetrait(nexId == null ? 1L : nexId + 1);
+        return retraitRepository.save(retrait);
     }
 
     @Override
-    public RetraitDto editRetrait(RetraitDto retraitDto) {
-        RetraitDto rAvant = retraitService.findById(retraitDto.getIdRetrait());
+    public Retrait editRetrait(Retrait retrait) {
+        Retrait rAvant = retraitRepository.findById(retrait.getIdRetrait()).get();
         Double montantAvant = rAvant.getMontant() + rAvant.getCommission();
         this.updateCaisse("+", montantAvant.intValue());
 
-
-        Double montantApres = retraitDto.getMontant() + retraitDto.getCommission();
+        Double montantApres = retrait.getMontant() + retrait.getCommission();
         this.updateCaisse("-", montantApres.intValue());
-
-        return this.retraitService.edit(retraitDto);
+        return this.retraitRepository.save(retrait);
     }
 
     @Override
-    public void deleteRetrait(RetraitDto retraitDto) {
-        Double montant = retraitDto.getMontant() + retraitDto.getCommission();
+    public void deleteRetrait(Long idRetrait) {
+        Retrait retrait = retraitRepository.findById(idRetrait).get();
+        Double montant = retrait.getMontant() + retrait.getCommission();
         updateCaisse("+", montant.intValue());
-        updateClient(retraitDto.getClient().getIdclient().longValue(), montant, "+");
+        updateClient(retrait.getClient().getIdclient().longValue(), montant, "+");
+        retraitRepository.deleteById(idRetrait);
     }
 
     private void updateCaisse(String signe, Integer montant) {
@@ -98,14 +105,14 @@ public class EpargneServiceImpl implements EpargneService {
         caisseRepository.save(caisse);
     }
 
-    private ClientDto updateClient(Long idClient, Double montant, String signe) {
-        ClientDto clientDto = clientService.findById(idClient);
+    private Client updateClient(Long idClient, Double montant, String signe) {
+        Client clientDto = clientRepository.findById(idClient.intValue()).get();
 
         if (signe.equals("+")) {
             clientDto.setSolde(clientDto.getSolde() + montant.intValue());
         } else {
             clientDto.setSolde(clientDto.getSolde() - montant.intValue());
         }
-        return clientService.edit(clientDto);
+        return clientRepository.save(clientDto);
     }
 }

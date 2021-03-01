@@ -2,10 +2,12 @@ package com.projet.epargne;
 
 import com.projet.epargne.dao.CaisseRepository;
 import com.projet.epargne.dao.ClientRepository;
+import com.projet.epargne.dao.ProfessionRepository;
 import com.projet.epargne.dto.ClientDto;
 import com.projet.epargne.dto.RetraitDto;
 import com.projet.epargne.dto.VersementDto;
 import com.projet.epargne.entities.Caisse;
+import com.projet.epargne.entities.Profession;
 import com.projet.epargne.entities.Versement;
 import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.services.interfaces.ClientService;
@@ -15,6 +17,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @SpringBootApplication
@@ -32,6 +36,10 @@ public class EpargneApplication implements CommandLineRunner {
     @Autowired
     private EpargneService epargneService;
 
+    @Autowired
+    private ProfessionRepository professionRepository;
+
+
     public static void main(String[] args) {
         SpringApplication.run(EpargneApplication.class, args);
     }
@@ -44,9 +52,17 @@ public class EpargneApplication implements CommandLineRunner {
         caisse.setMontant(0d);
         caisseRepository.save(caisse);
 
-        for (int i = 0; i < 2; i++) {
-            clientService.save(new ClientDto(null, "Client nom " + i, "Client prenom " + i, "CNI N° " + i, "+237 673564186", 1500, "Informaticien", true, 0, (i + 1), null, null));
+
+        professionRepository.save(new Profession(1,"Informaticiel"));
+        professionRepository.save(new Profession(2,"Comptable"));
+        professionRepository.save(new Profession(3,"Agent Commercial"));
+
+        for (int i = 0; i < 20; i++) {
+            clientService.save(new ClientDto(null, "Client " + i, " - ", "CNI N° " + i, "+237 673564186", 1500, "Informaticien", true, 0, (i + 1), null, null));
         }
+
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         for (ClientDto c : clientService.getAll()) {
             for (int i = 0; i < 2; i++) {
@@ -56,7 +72,7 @@ public class EpargneApplication implements CommandLineRunner {
                 versementDto.setClient(ClientMapper.INSTANCE.dtoToEntity(c));
                 versementDto.setDate(new Date());
                 versementDto.setHeure(new Date());
-                epargneService.saveVersement(versementDto);
+                //epargneService.saveVersement(versementDto);
             }
 
             for (int i = 0; i < 2; i++) {
@@ -68,7 +84,7 @@ public class EpargneApplication implements CommandLineRunner {
                 retraitDto.setCommission(10);
                 retraitDto.setCommissionAuto(false);
                 retraitDto.setHeure(new Date());
-                epargneService.saveRetrait(retraitDto);
+                //epargneService.saveRetrait(retraitDto);
             }
         }
     }

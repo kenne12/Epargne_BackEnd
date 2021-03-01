@@ -1,8 +1,10 @@
 package com.projet.epargne.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,10 +21,14 @@ public class Versement implements Serializable {
     private Long idVersement;
     private double montant;
     @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
+    @Column(nullable = true)
+    //@DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date;
-    @Temporal(TemporalType.TIME)
-    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date heure;
     private double solde;
     @JoinColumn(name = "idclient", referencedColumnName = "idclient")

@@ -1,6 +1,7 @@
 package com.projet.epargne.rest;
 
 import com.projet.epargne.dto.VersementDto;
+import com.projet.epargne.services.interfaces.EpargneService;
 import com.projet.epargne.services.interfaces.VersementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ public class VersementRestController {
 
     @Autowired
     private VersementService versementService;
+    
 
     /**
      * Gets the all versements.
@@ -28,6 +30,7 @@ public class VersementRestController {
         return versementService.getAll();
     }
 
+
     /**
      * Gets the versment by id.
      *
@@ -35,10 +38,10 @@ public class VersementRestController {
      * @return the versement by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<VersementDto> getRetraitById(@PathVariable("id") Long id) {
-        VersementDto retraitData = versementService.findById(id);
-        if (retraitData != null) {
-            return new ResponseEntity<>(retraitData, HttpStatus.OK);
+    public ResponseEntity<VersementDto> getVersementById(@PathVariable("id") Long id) {
+        VersementDto versementData = versementService.findById(id);
+        if (versementData != null) {
+            return new ResponseEntity<>(versementData, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -64,10 +67,10 @@ public class VersementRestController {
      * @param dto the dto
      * @return the response entity
      */
-    @PutMapping("/edit")
-    public ResponseEntity<VersementDto> updatVersement(@RequestBody VersementDto dto) {
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<VersementDto> updateVersement(@PathVariable(name = "id") Long id, @RequestBody VersementDto dto) {
         if (dto != null && dto.getClient() != null) {
-            return new ResponseEntity<>(versementService.save(dto), HttpStatus.OK);
+            return new ResponseEntity<>(versementService.edit(dto), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -88,6 +91,5 @@ public class VersementRestController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
-
 
 }

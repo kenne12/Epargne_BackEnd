@@ -1,5 +1,6 @@
 package com.projet.epargne.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,8 +32,10 @@ public class Client implements Serializable {
     private int numeroCarnet;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Retrait> retraits;
 
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Versement> versements;
 }

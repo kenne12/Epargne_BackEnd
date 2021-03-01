@@ -7,6 +7,7 @@ import com.projet.epargne.entities.Utilisateur;
 import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.mapper.UtilisateurMapper;
 import com.projet.epargne.services.interfaces.UtilisateurService;
+import com.projet.epargne.utils.ShaHash;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         Utilisateur utilisateur = UtilisateurMapper.INSTANCE.dtoToEntity(dto);
         if (utilisateur != null) {
             utilisateur.setIdUtilisateur(this.next());
+            utilisateur.setPassword(new ShaHash().hash(utilisateur.getPassword()));
             return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
         }
         return null;

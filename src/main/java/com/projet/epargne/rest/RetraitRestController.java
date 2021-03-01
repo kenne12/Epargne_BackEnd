@@ -58,7 +58,7 @@ public class RetraitRestController {
      */
     @PostMapping("/add")
     public ResponseEntity<RetraitDto> createArticle(@RequestBody RetraitDto dto) {
-        if (dto.getIdRetrait() != null) {
+        if (dto.getClient() != null) {
             return new ResponseEntity<>(retraitService.save(dto), HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -70,8 +70,9 @@ public class RetraitRestController {
      * @param dto the dto
      * @return the response entity
      */
-    @PutMapping("/edit")
-    public ResponseEntity<RetraitDto> updateRetrait(@RequestBody RetraitDto dto) {
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<RetraitDto> updateRetrait(@PathVariable(name = "id") Long id, @RequestBody RetraitDto dto) {
+        dto.setIdRetrait(id);
         if (dto != null && dto.getClient() != null) {
             return new ResponseEntity<>(retraitService.save(dto), HttpStatus.OK);
         } else {

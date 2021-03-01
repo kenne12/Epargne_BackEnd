@@ -4,6 +4,7 @@ import com.projet.epargne.dao.RetraitRepository;
 import com.projet.epargne.dto.RetraitDto;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.mapper.RetraitMapper;
+import com.projet.epargne.services.interfaces.EpargneService;
 import com.projet.epargne.services.interfaces.RetraitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,9 @@ public class RetraitServiceImpl implements RetraitService {
 
     @Autowired
     private RetraitRepository retraitRepository;
+
+    @Autowired
+    private EpargneService epargneService;
 
     @Override
     public Iterable<RetraitDto> getAll() {
@@ -40,7 +44,8 @@ public class RetraitServiceImpl implements RetraitService {
     public RetraitDto save(RetraitDto dto) {
         Retrait retrait = RetraitMapper.INSTANCE.dtoToEntity(dto);
         if (retrait != null) {
-            return RetraitMapper.INSTANCE.entityToDto(retraitRepository.save(retrait));
+            Retrait r = epargneService.saveRetrait(retrait);
+            return RetraitMapper.INSTANCE.entityToDto(r);
         }
         return null;
     }
@@ -49,14 +54,15 @@ public class RetraitServiceImpl implements RetraitService {
     public RetraitDto edit(RetraitDto dto) {
         Retrait retrait = RetraitMapper.INSTANCE.dtoToEntity(dto);
         if (retrait != null && retrait.getClient() != null) {
-            return RetraitMapper.INSTANCE.entityToDto(retraitRepository.save(retrait));
+            Retrait r = epargneService.editRetrait(retrait);
+            return RetraitMapper.INSTANCE.entityToDto(r);
         }
         return null;
     }
 
     @Override
     public void deleteById(Long id) {
-        retraitRepository.deleteById(id);
+        epargneService.deleteRetrait(id);
     }
 
     @Override

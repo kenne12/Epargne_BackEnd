@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
+
 /**
  * The Class ClientRestController.
  */
@@ -24,9 +26,56 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all")
     public @ResponseBody
-    Iterable<ClientDto> getAllArticle() {
+    Iterable<ClientDto> getAllClient() {
         return clientService.getAll();
     }
+
+
+    /**
+     * Get clients By Nom Or Prenom.
+     *
+     * @return the all clients
+     */
+    @GetMapping(path = "/all/search/nomOrPrenom")
+    public @ResponseBody
+    Iterable<ClientDto> searchClientByNomOrPrenom(@PathParam("keyword") String keyword) {
+        return clientService.findByNonOrPrenom("%" + keyword + "%");
+    }
+
+    /**
+     * Get clients By Nom Or Prenom.
+     *
+     * @return the all clients
+     */
+    @GetMapping(path = "/all/search/etat")
+    public @ResponseBody
+    Iterable<ClientDto> searchClientByEtat(@PathParam("etat") boolean etat) {
+        return clientService.findByEtat(etat);
+    }
+
+
+    /**
+     * Get clients By Solde Zero.
+     *
+     * @return the all clients where solde equal 0
+     */
+    @GetMapping(path = "/all/search/soldeZero")
+    public @ResponseBody
+    Iterable<ClientDto> searchClientBySoldeZero() {
+        return clientService.findBySoldeZero();
+    }
+
+    /**
+     * Get clients By Solde Gth Zero.
+     *
+     * @return the all clients where solde ght 0
+     */
+    @GetMapping(path = "/all/search/soldeGthZero")
+    public @ResponseBody
+    Iterable<ClientDto> searchClientBySoldeGthZero() {
+        return clientService.findBySoldeGthZero();
+    }
+
 
     /**
      * Gets the client by id.
@@ -35,7 +84,7 @@ public class ClientRestController {
      * @return the client by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getArticleById(@PathVariable("id") Long id) {
+    public ResponseEntity<ClientDto> getClientById(@PathVariable("id") Long id) {
         ClientDto clientData = clientService.findById(id);
         if (clientData != null) {
             return new ResponseEntity<>(clientData, HttpStatus.OK);
@@ -51,7 +100,7 @@ public class ClientRestController {
      * @return the response entity
      */
     @PostMapping("/add")
-    public ResponseEntity<ClientDto> createArticle(@RequestBody ClientDto dto) {
+    public ResponseEntity<ClientDto> createClient(@RequestBody ClientDto dto) {
         if (dto.getIdclient() != null) {
             return new ResponseEntity<>(clientService.save(dto), HttpStatus.CREATED);
         }
@@ -64,10 +113,26 @@ public class ClientRestController {
      * @param dto the dto
      * @return the response entity
      */
-    @PutMapping("/edit")
-    public ResponseEntity<ClientDto> updateArticle(@RequestBody ClientDto dto) {
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<ClientDto> updateClient(@PathVariable(name = "id") Integer id, @RequestBody ClientDto dto) {
         if (dto != null && dto.getIdclient() != null) {
             return new ResponseEntity<>(clientService.save(dto), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    /**
+     * Change State Client.
+     *
+     * @param dto the dto
+     * @return the response entity
+     */
+    @PutMapping("/changeState/{id}")
+    public ResponseEntity<ClientDto> changeState(@PathVariable("id") Integer id, @RequestBody ClientDto dto) {
+        if (dto != null && dto.getIdclient() != null) {
+            return new ResponseEntity<>(clientService.changeState(dto), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -80,7 +145,7 @@ public class ClientRestController {
      * @return the response entity
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteArticle(@PathVariable("id") Long id) {
+    public ResponseEntity<HttpStatus> deleteClient(@PathVariable("id") Long id) {
         if (id != null) {
             clientService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);

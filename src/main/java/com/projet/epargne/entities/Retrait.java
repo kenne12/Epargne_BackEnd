@@ -1,8 +1,10 @@
 package com.projet.epargne.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -19,10 +21,15 @@ public class Retrait implements Serializable {
     private Long idRetrait;
     private double montant;
     @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
+
+    //@DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(nullable = true)
     private Date date;
-    @Temporal(TemporalType.TIME)
-    @Column(nullable = false)
+    @Temporal(TemporalType.TIMESTAMP)
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Column(nullable = true)
     private Date heure;
     private int commission;
     @Column(name = "commission_auto")

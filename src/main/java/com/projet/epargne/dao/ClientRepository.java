@@ -14,4 +14,16 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
     @Query("select c from Client c WHERE c.etat=:etat order by c.numeroCarnet")
     public List<Client> findByEtat(@Param("etat") boolean etat);
+
+    @Query("select c from Client c order by c.numeroCarnet")
+    public List<Client> findAllOrOrderByNumeroCarnet();
+
+    @Query("select c from Client c WHERE c.nom like :keyword or c.prenom like :keyword order by c.numeroCarnet")
+    public List<Client> findByNomLikeOrPrenomLike(@Param("keyword") String keyword);
+
+    @Query("select c from Client c WHERE c.solde = 0  order by c.numeroCarnet")
+    public List<Client> findBySoldeEqualsZero();
+
+    @Query("select c from Client c WHERE c.solde > 0  order by c.numeroCarnet")
+    public List<Client> findBySoldeGthZero();
 }
