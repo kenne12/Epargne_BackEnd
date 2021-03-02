@@ -2,9 +2,7 @@ package com.projet.epargne.services.impl;
 
 import com.projet.epargne.dao.UtilisateurRepository;
 import com.projet.epargne.dto.UtilisateurDto;
-import com.projet.epargne.entities.Client;
 import com.projet.epargne.entities.Utilisateur;
-import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.mapper.UtilisateurMapper;
 import com.projet.epargne.services.interfaces.UtilisateurService;
 import com.projet.epargne.utils.ShaHash;
@@ -55,6 +53,13 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
         }
         return null;
+    }
+
+    @Override
+    public Iterable<UtilisateurDto> findByEtat(boolean etat){
+        return StreamSupport.stream(utilisateurRepository.findAllByActif(etat).spliterator(), false)
+                .map(UtilisateurMapper.INSTANCE::entityToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
