@@ -43,6 +43,7 @@ public class VersementServiceImpl implements VersementService {
     @Override
     public VersementDto save(VersementDto dto) {
         Versement versement = VersementMapper.INSTANCE.dtoToEntity(dto);
+        System.err.println("Conversion : "+versement);
         if (versement != null) {
             Versement v = epargneService.saveVersement(versement);
             return VersementMapper.INSTANCE.entityToDto(v);

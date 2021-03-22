@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UtilisateurRepository extends JpaRepository<Utilisateur, Integer> {
 
@@ -14,4 +15,7 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Intege
 
     @Query("select u from Utilisateur  u where u.actif=:actif")
     public List<Utilisateur> findAllByActif(@Param("actif") boolean etat);
+
+    @Query("select u from Utilisateur  u where u.login=:login")
+    public Optional<Utilisateur> findByUserName(@Param("login") String login);
 }

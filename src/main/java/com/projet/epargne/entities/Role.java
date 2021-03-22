@@ -12,14 +12,15 @@ import java.io.Serializable;
 
 @Entity
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Menu implements Serializable {
+@AllArgsConstructor
+public class Role implements Serializable {
+
     @Id
     @Basic(optional = false)
-    private Integer idmenu;
-    @Column(name = "nom",length = 50)
-    private String role;
-    @Column(length = 70)
-    private String ressource;
+    @Column(name = "id")
+    private int id;
+
+    @Column(name = "role_name")
+    private String roleName;
 }

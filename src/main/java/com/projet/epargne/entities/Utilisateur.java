@@ -24,11 +24,13 @@ public class Utilisateur implements Serializable {
     private String prenom;
     @Column(length = 100)
     private String login;
-    @Column(length = 100)
+    @Column(length = 300)
     private String password;
     private String photo;
     private boolean actif;
     @OneToMany(mappedBy = "utilisateur", fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Privilege> privileges;
+
+
 }

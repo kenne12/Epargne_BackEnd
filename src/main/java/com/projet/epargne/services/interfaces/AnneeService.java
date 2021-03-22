@@ -5,4 +5,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface AnneeService extends GenericService<AnneeDto> {
+
+    Iterable<AnneeDto> findByEtat(boolean etat);
 }

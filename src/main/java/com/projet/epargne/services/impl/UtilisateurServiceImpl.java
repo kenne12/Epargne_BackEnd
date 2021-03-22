@@ -5,16 +5,28 @@ import com.projet.epargne.dto.UtilisateurDto;
 import com.projet.epargne.entities.Utilisateur;
 import com.projet.epargne.mapper.UtilisateurMapper;
 import com.projet.epargne.services.interfaces.UtilisateurService;
-import com.projet.epargne.utils.ShaHash;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@Transactional
 public class UtilisateurServiceImpl implements UtilisateurService {
+
+    @Autowired
+    public BCryptPasswordEncoder bCryptPasswordEncoder;
+
+
+    @Bean
+    public BCryptPasswordEncoder bCryptPasswordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Autowired
     private UtilisateurRepository utilisateurRepository;
@@ -40,7 +52,8 @@ public class UtilisateurServiceImpl implements UtilisateurService {
         Utilisateur utilisateur = UtilisateurMapper.INSTANCE.dtoToEntity(dto);
         if (utilisateur != null) {
             utilisateur.setIdUtilisateur(this.next());
-            utilisateur.setPassword(new ShaHash().hash(utilisateur.getPassword()));
+            utilisateur.setPassword(bCryptPasswordEncoder().encode(utilisateur.getPassword()));
+            //utilisateur.setPassword(new ShaHash().hash(utilisateur.getPassword()));
             return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
         }
         return null;
@@ -56,7 +69,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
     }
 
     @Override
-    public Iterable<UtilisateurDto> findByEtat(boolean etat){
+    public Iterable<UtilisateurDto> findByEtat(boolean etat) {
         return StreamSupport.stream(utilisateurRepository.findAllByActif(etat).spliterator(), false)
                 .map(UtilisateurMapper.INSTANCE::entityToDto)
                 .collect(Collectors.toList());
@@ -78,5 +91,15 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             return nextValue = 1;
         }
         return nextValue + 1;
+    }
+
+    @Override
+    public UtilisateurDto findByUserName(String userName) {
+        Optional<Utilisateur> utilisateur = utilisateurRepository.findByUserName(userName);
+        if (utilisateur.isPresent()) {
+            return UtilisateurMapper.INSTANCE.entityToDto(utilisateur.get());
+        }
+        return null;
+
     }
 }

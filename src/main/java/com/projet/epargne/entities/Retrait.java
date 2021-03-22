@@ -22,7 +22,7 @@ public class Retrait implements Serializable {
     private double montant;
     @Temporal(TemporalType.DATE)
 
-    //@DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = true)
     private Date date;

@@ -7,4 +7,6 @@ public interface UtilisateurService extends GenericService<UtilisateurDto> {
     Integer nextValue();
 
     Iterable<UtilisateurDto> findByEtat(boolean etat);
+
+    UtilisateurDto findByUserName(String userName);
 }
