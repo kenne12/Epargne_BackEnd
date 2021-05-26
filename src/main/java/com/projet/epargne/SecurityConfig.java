@@ -33,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 //don't create session
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-                .antMatchers("/account/register", "/login/").permitAll().anyRequest().authenticated()
+                .antMatchers("/account/register", "/login/" , "/api/**").permitAll().anyRequest().authenticated()
                 .and().cors()
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))

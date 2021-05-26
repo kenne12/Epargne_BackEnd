@@ -3,6 +3,7 @@ package com.projet.epargne.rest;
 import com.projet.epargne.dto.UtilisateurDto;
 import com.projet.epargne.services.interfaces.UtilisateurService;
 import com.projet.epargne.utils.ShaHash;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,13 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.websocket.server.PathParam;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/utilisateur")
 public class UtilisateurRestController {
 
-
-    @Autowired
-    private UtilisateurService utilisateurService;
+    private final UtilisateurService utilisateurService;
 
     /**
      * Gets the all utilisateurs.

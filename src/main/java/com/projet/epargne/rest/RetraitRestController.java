@@ -1,27 +1,28 @@
 package com.projet.epargne.rest;
 
 import com.projet.epargne.dto.RetraitDto;
-import com.projet.epargne.services.interfaces.ClientService;
-import com.projet.epargne.services.interfaces.RetraitService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.projet.epargne.dto.RetraitRequest;
+import com.projet.epargne.entities.Retrait;
+import com.projet.epargne.services.impl.RetraitServiceImpl;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.websocket.server.PathParam;
 
 /*
  *The RetraitRestController
  */
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/retrait")
 public class RetraitRestController {
 
-    @Autowired
-    private RetraitService retraitService;
+    private final RetraitServiceImpl retraitService;
 
-
-    @Autowired
-    private ClientService clientService;
 
     /**
      * Gets the all retraits.
@@ -29,9 +30,8 @@ public class RetraitRestController {
      * @return the all retrait
      */
     @GetMapping(path = "/all")
-    public @ResponseBody
-    Iterable<RetraitDto> getAllRetrait() {
-        return retraitService.getAll();
+    public ResponseEntity<Page<Retrait>> getAllRetrait(@PathParam(value = "page") int page, @PathParam("size") int size) {
+        return ResponseEntity.status(HttpStatus.OK).body(retraitService.getAll(page, size));
     }
 
     /**
@@ -42,10 +42,9 @@ public class RetraitRestController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<RetraitDto> getRetraitById(@PathVariable("id") Long id) {
-        RetraitDto retraitData = retraitService.findById(id);
-        if (retraitData != null) {
-            return new ResponseEntity<>(retraitData, HttpStatus.OK);
-        } else {
+        try {
+            return new ResponseEntity<>(retraitService.findById(id), HttpStatus.OK);
+        } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -57,11 +56,9 @@ public class RetraitRestController {
      * @return the response entity
      */
     @PostMapping("/add")
-    public ResponseEntity<RetraitDto> createArticle(@RequestBody RetraitDto dto) {
-        if (dto.getClient() != null) {
-            return new ResponseEntity<>(retraitService.save(dto), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<RetraitDto> createArticle(@RequestBody RetraitRequest dto) {
+        return new ResponseEntity<>(retraitService.save(dto), HttpStatus.CREATED);
+        //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -71,13 +68,9 @@ public class RetraitRestController {
      * @return the response entity
      */
     @PutMapping("/edit/{id}")
-    public ResponseEntity<RetraitDto> updateRetrait(@PathVariable(name = "id") Long id, @RequestBody RetraitDto dto) {
-        dto.setIdRetrait(id);
-        if (dto != null && dto.getClient() != null) {
-            return new ResponseEntity<>(retraitService.save(dto), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<RetraitDto> updateRetrait(@PathVariable(name = "id") Long id, @RequestBody RetraitRequest dto) {
+        return new ResponseEntity<>(retraitService.save(dto), HttpStatus.OK);
+        //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -88,11 +81,7 @@ public class RetraitRestController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteRetrait(@PathVariable("id") Long id) {
-        if (id != null) {
-            retraitService.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        retraitService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

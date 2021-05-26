@@ -74,4 +74,11 @@ public class AnneeMoisServiceImpl implements AnneeMoisService {
                 .collect(Collectors.toList());
 
     }
+
+    @Override
+    public List<AnneeMoisDto> findByEtat(boolean etat) {
+        return StreamSupport.stream(anneeMoisRepository.findByEtat(etat).spliterator(), false)
+                .map(AnneeMoisMapper.INSTANCE::entityToDto)
+                .collect(Collectors.toList());
+    }
 }

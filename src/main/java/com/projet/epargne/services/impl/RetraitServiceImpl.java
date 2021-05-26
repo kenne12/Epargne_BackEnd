@@ -1,77 +1,53 @@
 package com.projet.epargne.services.impl;
 
+import com.projet.epargne.ObjectNotFoundException;
 import com.projet.epargne.dao.RetraitRepository;
 import com.projet.epargne.dto.RetraitDto;
-import com.projet.epargne.dto.UtilisateurDto;
+import com.projet.epargne.dto.RetraitRequest;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.mapper.RetraitMapper;
 import com.projet.epargne.services.interfaces.EpargneService;
-import com.projet.epargne.services.interfaces.RetraitService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 @Transactional
-public class RetraitServiceImpl implements RetraitService {
+public class RetraitServiceImpl {
 
-    @Autowired
-    private RetraitRepository retraitRepository;
+    private final RetraitRepository retraitRepository;
+    private final EpargneService epargneService;
 
-    @Autowired
-    private EpargneService epargneService;
-
-    @Override
-    public Iterable<RetraitDto> getAll() {
-        return StreamSupport.stream(retraitRepository.findAll().spliterator(), false)
-                .map(RetraitMapper.INSTANCE::entityToDto)
-                .collect(Collectors.toList());
+    public Page<Retrait> getAll(int page, int size) {
+        return retraitRepository.findAll(PageRequest.of(page, size));
     }
 
-    @Override
     public RetraitDto findById(Long id) {
-        Optional<Retrait> retrait = retraitRepository.findById(id);
-        if (retrait.isPresent()) {
-            return RetraitMapper.INSTANCE.entityToDto(retrait.get());
-        }
-        return null;
+        Retrait retrait = retraitRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Retrait not found with id : " + id));
+        return RetraitMapper.INSTANCE.entityToDto(retrait);
     }
 
-    @Override
-    public RetraitDto save(RetraitDto dto) {
-        Retrait retrait = RetraitMapper.INSTANCE.dtoToEntity(dto);
-        if (retrait != null) {
-            Retrait r = epargneService.saveRetrait(retrait);
-            return RetraitMapper.INSTANCE.entityToDto(r);
-        }
-        return null;
+    public RetraitDto save(RetraitRequest retraitRequest) {
+        Retrait r = epargneService.saveRetrait(retraitRequest);
+        return RetraitMapper.INSTANCE.entityToDto(r);
     }
 
-    @Override
-    public RetraitDto edit(RetraitDto dto) {
-        Retrait retrait = RetraitMapper.INSTANCE.dtoToEntity(dto);
-        if (retrait != null && retrait.getClient() != null) {
-            Retrait r = epargneService.editRetrait(retrait);
-            return RetraitMapper.INSTANCE.entityToDto(r);
-        }
-        return null;
+    public RetraitDto edit(RetraitRequest retraitRequest) {
+        Retrait r = epargneService.editRetrait(retraitRequest);
+        return RetraitMapper.INSTANCE.entityToDto(r);
     }
 
-
-    @Override
     public void deleteById(Long id) {
         epargneService.deleteRetrait(id);
     }
 
-    @Override
     public Long nextValue() {
         return this.next();
     }
-
 
     private Long next() {
         Long next = retraitRepository.nextValue();

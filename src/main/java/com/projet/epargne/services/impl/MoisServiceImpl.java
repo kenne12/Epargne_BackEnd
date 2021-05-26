@@ -10,6 +10,7 @@ import com.projet.epargne.services.interfaces.MoisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -30,6 +31,10 @@ public class MoisServiceImpl implements MoisService {
 
     @Override
     public MoisDto findById(Long id) {
+        Optional<Mois> mois = moisRepository.findById(id.intValue());
+        if (mois.isPresent()) {
+            return MoisMapper.INSTANCE.entityToDto(mois.get());
+        }
         return null;
     }
 

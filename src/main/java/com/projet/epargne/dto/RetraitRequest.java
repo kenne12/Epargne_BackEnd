@@ -1,4 +1,4 @@
-package com.projet.epargne.entities;
+package com.projet.epargne.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -7,23 +7,19 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Column;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.util.Date;
 
-@Entity
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class Retrait implements Serializable {
-    @Id
-    @Basic
-    @Column(name = "idretrait")
+public class RetraitRequest {
     private Long idRetrait;
     private double montant;
     @Temporal(TemporalType.DATE)
-
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = true)
@@ -34,13 +30,6 @@ public class Retrait implements Serializable {
     @Column(nullable = true)
     private Date heure;
     private int commission;
-    @Column(name = "commission_auto")
     private boolean commissionAuto;
-    private double solde;
-    @JoinColumn(name = "idclient", referencedColumnName = "idclient")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Client client;
-    @JoinColumn(name = "id_annee_mois", referencedColumnName = "id_annee_mois")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private AnneeMois mois;
+    private int idclient;
 }

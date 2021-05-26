@@ -5,11 +5,9 @@ import com.projet.epargne.dao.ProfessionRepository;
 import com.projet.epargne.dto.*;
 import com.projet.epargne.entities.Caisse;
 import com.projet.epargne.entities.Profession;
-import com.projet.epargne.entities.Retrait;
-import com.projet.epargne.entities.Versement;
-import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.mapper.MenuMapper;
 import com.projet.epargne.mapper.UtilisateurMapper;
+import com.projet.epargne.services.impl.EpargneServiceImpl;
 import com.projet.epargne.services.interfaces.*;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Date;
+import java.util.Random;
 
 @SpringBootApplication
 public class EpargneApplication implements CommandLineRunner {
@@ -36,7 +35,7 @@ public class EpargneApplication implements CommandLineRunner {
     private CaisseRepository caisseRepository;
 
     @Autowired
-    private EpargneService epargneService;
+    private EpargneServiceImpl epargneService;
 
     @Autowired
     private ProfessionRepository professionRepository;
@@ -56,11 +55,9 @@ public class EpargneApplication implements CommandLineRunner {
     @Autowired
     private MoisService moisService;
 
-
     public static void main(String[] args) {
         SpringApplication.run(EpargneApplication.class, args);
     }
-
 
     @Override
     public void run(String... args) throws Exception {
@@ -74,34 +71,40 @@ public class EpargneApplication implements CommandLineRunner {
         professionRepository.save(new Profession(2, "Comptable"));
         professionRepository.save(new Profession(3, "Agent Commercial"));
 
-        for (int i = 0; i < 20; i++) {
-            clientService.save(new ClientDto(0, "Client " + i, " - ", "CNI N° " + i, "+237 673564186", 1500, "Informaticien", true, 0, (i + 1), null, null));
+        for (int i = 0; i < 25; i++) {
+            clientService.save(new ClientDto(0, "Client " + (i + 1), " - ", "CNI N° " + i, "+237 673564186", 1500, "Informaticien", true, 0, (i + 1), null, null));
         }
 
-        //DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        //DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
         for (ClientDto c : clientService.getAll()) {
-            for (int i = 0; i < 2; i++) {
-                Versement versementDto = new Versement();
-                versementDto.setIdVersement(null);
-                versementDto.setMontant(100);
-                versementDto.setClient(ClientMapper.INSTANCE.dtoToEntity(c));
-                versementDto.setDate(new Date());
-                versementDto.setHeure(new Date());
-                epargneService.saveVersement(versementDto);
+            Random rnd = new Random();
+            for (int i = 0; i < 5; i++) {
+                double montant = Math.ceil((rnd.nextInt(8) * 100) + 300d);
+
+                VersementRequest versementRequest = VersementRequest.builder()
+                        .idVersement(null)
+                        .date(new Date())
+                        .heure(new Date())
+                        .idclient(c.getIdclient())
+                        .montant(montant)
+                        .build();
+                epargneService.saveVersement(versementRequest);
             }
 
             for (int i = 0; i < 2; i++) {
-                Retrait retraitDto = new Retrait();
-                retraitDto.setIdRetrait(null);
-                retraitDto.setMontant(50);
-                retraitDto.setClient(ClientMapper.INSTANCE.dtoToEntity(c));
-                retraitDto.setDate(new Date());
-                retraitDto.setCommission(10);
-                retraitDto.setCommissionAuto(false);
-                retraitDto.setHeure(new Date());
-                epargneService.saveRetrait(retraitDto);
+
+                double montant = Math.ceil((rnd.nextInt(10) * 5) + 75d);
+
+                RetraitRequest retraitRequest = RetraitRequest.builder()
+                        .idRetrait(null)
+                        .idclient(c.getIdclient())
+                        .date(new Date())
+                        .heure(new Date())
+                        .commission(10)
+                        .commissionAuto(false)
+                        .montant(montant)
+                        .build();
+
+                epargneService.saveRetrait(retraitRequest);
             }
         }
 
@@ -153,10 +156,8 @@ public class EpargneApplication implements CommandLineRunner {
         anneeDto2.setEtat(true);
         anneeDto2.setDateDebut(new DateTime("2020-01-01").toDate());
 
-
         anneeDto2.setDateFin(new DateTime("2020-12-31").toDate());
         anneeService.save(anneeDto2);
-
 
         moisService.save(new MoisDto(0, "Janvier", 1));
         moisService.save(new MoisDto(0, "Février", 2));

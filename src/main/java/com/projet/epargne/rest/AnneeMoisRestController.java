@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -96,10 +97,9 @@ public class AnneeMoisRestController {
         }
     }
 
-    @GetMapping("/mois/{id]")
+    @GetMapping("/mois/{id}")
     public @ResponseBody
     Iterable<MoisDto> restMoisByIdAnnee(@PathVariable("id") Integer id) {
-        System.err.println("received request : " + id);
         List<AnneeMoisDto> list = anneeMoisService.findByIdAnne(id);
         if (list.isEmpty()) {
             return moisService.getAll();
@@ -117,5 +117,15 @@ public class AnneeMoisRestController {
         }
     }
 
+    /**
+     * Gets the all anneeMois.
+     *
+     * @return the all AnneeMois
+     */
+    @GetMapping(path = "/all/search/etat")
+    public @ResponseBody
+    Iterable<AnneeMoisDto> getMoisByEtat(@PathParam("etat") boolean etat) {
+        return anneeMoisService.findByEtat(etat);
+    }
 
 }
