@@ -1,7 +1,7 @@
 package com.projet.epargne.rest;
 
-import com.projet.epargne.dto.VersementDto;
-import com.projet.epargne.dto.VersementRequest;
+import com.projet.epargne.dto.VersementResponseDTO;
+import com.projet.epargne.dto.VersementRequestDTO;
 import com.projet.epargne.entities.Versement;
 import com.projet.epargne.services.impl.VersementServiceImpl;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ import javax.websocket.server.PathParam;
  *The VersementRestController
  */
 @RestController
-@RequestMapping("/api/versement")
+@RequestMapping("/api/versements")
 @AllArgsConstructor
 public class VersementRestController {
 
@@ -29,7 +29,7 @@ public class VersementRestController {
      * @return the all versement
      */
     @GetMapping(path = "/all")
-    public ResponseEntity<Page<Versement>> getAllVersement(@PathParam(value = "page") int page, @PathParam("size") int size) {
+    public ResponseEntity<Page<Versement>> getAllVersement(@PathParam(value = "page") int page, @PathParam("size") int size) {//
         return ResponseEntity.status(HttpStatus.OK).body(versementService.getAll(page, size));
     }
 
@@ -40,7 +40,7 @@ public class VersementRestController {
      * @return the versement by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<VersementDto> getVersementById(@PathVariable("id") Long id) {
+    public ResponseEntity<VersementResponseDTO> getVersementById(@PathVariable("id") Long id) {//
         try {
             return new ResponseEntity<>(versementService.findById(id), HttpStatus.OK);
         } catch (Exception e) {
@@ -55,9 +55,9 @@ public class VersementRestController {
      * @return the response entity
      */
     @PostMapping("/add")
-    public ResponseEntity<VersementDto> createVersement(@RequestBody VersementRequest versementRequest) {
+    public ResponseEntity<VersementResponseDTO> createVersement(@RequestBody VersementRequestDTO versementRequestDTO) {//
         try {
-            return new ResponseEntity<>(versementService.save(versementRequest), HttpStatus.CREATED);
+            return new ResponseEntity<>(versementService.save(versementRequestDTO), HttpStatus.CREATED);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -70,10 +70,10 @@ public class VersementRestController {
      * @return the response entity
      */
     @PutMapping("/edit/{id}")
-    public ResponseEntity<VersementDto> updateVersement(@PathVariable(name = "id") Long id, @RequestBody VersementRequest versementRequest) {
-        if (versementRequest != null && versementRequest.getIdclient() != 0) {
-            versementRequest.setIdVersement(id);
-            return new ResponseEntity<>(versementService.edit(versementRequest), HttpStatus.OK);
+    public ResponseEntity<VersementResponseDTO> updateVersement(@PathVariable(name = "id") Long id, @RequestBody VersementRequestDTO versementRequestDTO) {
+        if (versementRequestDTO != null && versementRequestDTO.getIdclient() != 0) {
+            versementRequestDTO.setIdVersement(id);
+            return new ResponseEntity<>(versementService.edit(versementRequestDTO), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -99,27 +99,28 @@ public class VersementRestController {
     /**
      * Gets the versement by idClient.
      *
+     * @param idClient
+     * @param dateDebut
+     * @param dateFin
      * @return the all versement
-     * @Param idClient , dateDebut , dateFin
      */
     @GetMapping(path = "/search/client")
     public @ResponseBody
-    Iterable<VersementDto> getByIdClientIntervalDate(@PathParam("idClient") int idClient, @PathParam("dateDebut") String dateDebut, @PathParam("dateFin") String dateFin) {
-        return versementService.findByIdClientIntervalDate(idClient, new DateTime(dateDebut).toDate(), new DateTime(dateFin).toDate());
+    Iterable<VersementResponseDTO> getByIdClientIntervalDate(@PathParam("idClient") int idClient, @PathParam("dateDebut") String dateDebut, @PathParam("dateFin") String dateFin) {
+        return versementService.findByIdClientBetwenToDates(idClient, new DateTime(dateDebut).toDate(), new DateTime(dateFin).toDate());
     }
-
 
     /**
      * Gets the versement by idClient.
      *
+     * @param dateDebut
+     * @param dateFin
      * @return the all versement
-     * @Param idClient , dateDebut , dateFin
      */
     @GetMapping(path = "/search/date")
     public @ResponseBody
-    Iterable<VersementDto> getByIdIntervalDate(@PathParam("dateDebut") String dateDebut, @PathParam("dateFin") String dateFin) {
+    Iterable<VersementResponseDTO> getByIdIntervalDate(@PathParam("dateDebut") String dateDebut, @PathParam("dateFin") String dateFin) {
         return versementService.findByIntervalDate(new DateTime(dateDebut).toDate(), new DateTime(dateFin).toDate());
     }
-
 
 }

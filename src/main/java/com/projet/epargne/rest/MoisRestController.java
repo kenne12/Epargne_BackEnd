@@ -2,7 +2,6 @@ package com.projet.epargne.rest;
 
 import com.projet.epargne.dto.MoisDto;
 import com.projet.epargne.services.interfaces.MoisService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,8 +10,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/mois")
 public class MoisRestController {
 
-    @Autowired
+
     private MoisService moisService;
+
+    public MoisRestController(MoisService moisService) {
+        this.moisService = moisService;
+    }
 
     /**
      * Gets the all mois.
@@ -32,7 +35,7 @@ public class MoisRestController {
      * @return the mois by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<MoisDto> getById(@PathVariable("id") Long id) {
+    public ResponseEntity<MoisDto> getById(@PathVariable("id") int id) {
         MoisDto moisDto = moisService.findById(id);
         if (moisDto != null) {
             return new ResponseEntity<>(moisDto, HttpStatus.OK);

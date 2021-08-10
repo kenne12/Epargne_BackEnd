@@ -1,19 +1,27 @@
 package com.projet.epargne.services.interfaces;
 
-import com.projet.epargne.dto.ClientDto;
-import com.projet.epargne.entities.Client;
+import com.projet.epargne.dto.ClientRequestDTO;
+import com.projet.epargne.dto.ClientResponseDTO;
 
-public interface ClientService extends GenericService<ClientDto> {
+public interface ClientService {
 
-    Integer nextValue();
+    Iterable<ClientResponseDTO> getAll();
 
-    public Iterable<ClientDto> findByNonOrPrenom(String nom);
+    ClientResponseDTO findById(int id);
 
-    public Iterable<ClientDto> findByEtat(boolean etat);
+    ClientResponseDTO save(ClientRequestDTO clientRequestDTO);
 
-    public Iterable<ClientDto> findBySoldeZero();
+    ClientResponseDTO edit(ClientResponseDTO clientResponseDTO);
 
-    public Iterable<ClientDto> findBySoldeGthZero();
+    void deleteById(int id);
 
-    public ClientDto changeState(ClientDto clientDto);
+    Iterable<ClientResponseDTO> findByNonOrPrenom(String nom);
+
+    Iterable<ClientResponseDTO> findByEtat(boolean etat);
+
+    Iterable<ClientResponseDTO> findBySoldeZero();
+
+    Iterable<ClientResponseDTO> findBySoldeGthZero();
+
+    ClientResponseDTO changeState(int idClient, boolean state);
 }

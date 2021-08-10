@@ -1,19 +1,21 @@
 package com.projet.epargne.services.impl;
 
-import com.projet.epargne.ObjectNotFoundException;
+import com.projet.epargne.exceptions.ObjectNotFoundException;
 import com.projet.epargne.dao.CaisseRepository;
 import com.projet.epargne.dao.ClientRepository;
 import com.projet.epargne.dao.RetraitRepository;
 import com.projet.epargne.dao.VersementRepository;
-import com.projet.epargne.dto.RetraitRequest;
-import com.projet.epargne.dto.VersementRequest;
+import com.projet.epargne.dto.RetraitRequestDTO;
+import com.projet.epargne.dto.VersementRequestDTO;
 import com.projet.epargne.entities.Caisse;
 import com.projet.epargne.entities.Client;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.entities.Versement;
+import com.projet.epargne.exceptions.SoldeNegatifException;
+import com.projet.epargne.mapper.RetraitMapper;
+import com.projet.epargne.mapper.VersementMapper;
 import com.projet.epargne.services.interfaces.EpargneService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -29,36 +31,37 @@ public class EpargneServiceImpl implements EpargneService {
     private final ClientRepository clientRepository;
 
     @Override
-    public Versement saveVersement(VersementRequest versementRequest) {
-        Client c = clientRepository.findById(versementRequest.getIdclient()).orElseThrow(() -> new ObjectNotFoundException("Client non retrouvé : " + versementRequest.getIdclient()));
+    public Versement saveVersement(VersementRequestDTO versementRequestDTO) {
+        Client c = clientRepository.findById(versementRequestDTO.getIdclient()).orElseThrow(() -> new ObjectNotFoundException("Client not found with id : " + versementRequestDTO.getIdclient()));
 
-        this.updateCaisse("+", (int) versementRequest.getMontant());
-        Client cUpdate = this.updateClient(c.getIdclient().longValue(), versementRequest.getMontant(), "+");
+        this.updateCaisse("+", (int) versementRequestDTO.getMontant());
+        Client cUpdate = this.updateClient(c.getIdclient().longValue(), versementRequestDTO.getMontant(), "+");
 
-        Long id = versementRepository.nextValue();
+        Long id = null;
+        try {
+            id = versementRepository.nextValue();
+        } catch (Exception e) {
+            id = null;
+        }
 
-        Versement versement = Versement.builder()
-                .client(c)
-                .date(versementRequest.getDate())
-                .heure(versementRequest.getHeure())
-                .montant(versementRequest.getMontant())
-                .solde(cUpdate.getSolde())
-                .idVersement(id == null ? 1L : id + 1)
-                .build();
+        Versement versement = VersementMapper.INSTANCE.fromRequestToEnity(versementRequestDTO);
+        versement.setClient(c);
+        versement.setSolde(cUpdate.getSolde());
+        versement.setIdVersement(id == null ? 1L : id + 1);
         return versementRepository.save(versement);
     }
 
     @Override
-    public Versement editVersement(VersementRequest versementRequest) {
-        Versement versement = versementRepository.findById(versementRequest.getIdVersement())
-                .orElseThrow(() -> new ObjectNotFoundException("Versement not found with id : " + versementRequest.getIdVersement()));
+    public Versement editVersement(VersementRequestDTO versementRequestDTO) {
+        Versement versement = versementRepository.findById(versementRequestDTO.getIdVersement())
+                .orElseThrow(() -> new ObjectNotFoundException("Versement not found with id : " + versementRequestDTO.getIdVersement()));
         this.updateCaisse("-", (int) versement.getMontant());
         this.updateClient(versement.getClient().getIdclient().longValue(), versement.getMontant(), "-");
 
-        this.updateCaisse("+", (int) versementRequest.getMontant());
-        Client cUpdate = this.updateClient((long) versementRequest.getIdclient(), versementRequest.getMontant(), "-");
+        this.updateCaisse("+", (int) versementRequestDTO.getMontant());
+        Client cUpdate = this.updateClient((long) versementRequestDTO.getIdclient(), versementRequestDTO.getMontant(), "-");
         versement.setSolde((double) cUpdate.getSolde());
-        versement.setMontant(versementRequest.getMontant());
+        versement.setMontant(versementRequestDTO.getMontant());
         return versementRepository.save(versement);
     }
 
@@ -71,36 +74,38 @@ public class EpargneServiceImpl implements EpargneService {
     }
 
     @Override
-    public Retrait saveRetrait(RetraitRequest retraitRequest) {
-        Client c = clientRepository.findById(retraitRequest.getIdclient()).orElseThrow(() -> new ObjectNotFoundException("Client non retrouvé : " + retraitRequest.getIdclient()));
-        Double montant = retraitRequest.getMontant() + retraitRequest.getCommission();
-        updateCaisse("-", montant.intValue());
-        Client cUpdate = this.updateClient(c.getIdclient().longValue(), montant, "-");
+    public Retrait saveRetrait(RetraitRequestDTO retraitRequestDTO) {
 
-        Retrait retrait = Retrait.builder()
-                .client(c)
-                .mois(null)
-                .commission(retraitRequest.getCommission())
-                .commissionAuto(retraitRequest.isCommissionAuto())
-                .solde(cUpdate.getSolde())
-                .montant(montant)
-                .heure(retraitRequest.getHeure())
-                .date(retraitRequest.getDate())
-                .build();
 
-        Long nexId = retraitRepository.nextValue();
+        Client c = clientRepository.findById(retraitRequestDTO.getIdclient()).orElseThrow(() -> new ObjectNotFoundException("Client not found with id : " + retraitRequestDTO.getIdclient()));
+        Double montantTotal = retraitRequestDTO.getMontant() + retraitRequestDTO.getCommission();
+        updateCaisse("-", montantTotal.intValue());
+        Client cUpdate = this.updateClient(c.getIdclient().longValue(), montantTotal, "-");
+
+        Long nexId = null;
+
+        Retrait retrait = RetraitMapper.INSTANCE.fromRequestToEntity(retraitRequestDTO);
+        retrait.setClient(c);
+        retrait.setSolde(cUpdate.getSolde());
+        retrait.setMontant(montantTotal);
+        try {
+            nexId = retraitRepository.nextValue();
+        }catch (Exception e){
+
+        }
+
         retrait.setIdRetrait(nexId == null ? 1L : nexId + 1);
         return retraitRepository.save(retrait);
     }
 
     @Override
-    public Retrait editRetrait(RetraitRequest retraitRequest) {
-        Retrait retrait = retraitRepository.findById(retraitRequest.getIdRetrait())
-                .orElseThrow(()->new ObjectNotFoundException("Retrait not found with id : "+retraitRequest.getIdRetrait()));
+    public Retrait editRetrait(RetraitRequestDTO retraitRequestDTO) {
+        Retrait retrait = retraitRepository.findById(retraitRequestDTO.getIdRetrait())
+                .orElseThrow(() -> new ObjectNotFoundException("Retrait not found with id : " + retraitRequestDTO.getIdRetrait()));
         Double montantAvant = retrait.getMontant() + retrait.getCommission();
         this.updateCaisse("+", montantAvant.intValue());
 
-        Double montantApres = retraitRequest.getMontant() + retraitRequest.getCommission();
+        Double montantApres = retraitRequestDTO.getMontant() + retraitRequestDTO.getCommission();
         this.updateCaisse("-", montantApres.intValue());
         retrait.setMontant(montantApres);
         return this.retraitRepository.save(retrait);
@@ -110,8 +115,8 @@ public class EpargneServiceImpl implements EpargneService {
     public void deleteRetrait(Long idRetrait) {
         Retrait retrait = retraitRepository.findById(idRetrait).orElseThrow(() -> new ObjectNotFoundException("Retrait not found with id : " + idRetrait));
         Double montant = retrait.getMontant() + retrait.getCommission();
-        updateCaisse("+", montant.intValue());
         updateClient(retrait.getClient().getIdclient().longValue(), montant, "+");
+        updateCaisse("+", montant.intValue());
         retraitRepository.deleteById(idRetrait);
     }
 
@@ -126,12 +131,16 @@ public class EpargneServiceImpl implements EpargneService {
     }
 
     private Client updateClient(Long idClient, Double montant, String signe) {
-        Client clientDto = clientRepository.findById(idClient.intValue()).get();
+        Client client = clientRepository.findById(idClient.intValue()).get();
         if (signe.equals("+")) {
-            clientDto.setSolde(clientDto.getSolde() + montant.intValue());
+            client.setSolde(client.getSolde() + montant.intValue());
         } else {
-            clientDto.setSolde(clientDto.getSolde() - montant.intValue());
+            if (montant > client.getSolde()) {
+                throw new SoldeNegatifException("Le solde est inférieur au montant sollicité");
+            } else {
+                client.setSolde(client.getSolde() - montant.intValue());
+            }
         }
-        return clientRepository.save(clientDto);
+        return clientRepository.save(client);
     }
 }

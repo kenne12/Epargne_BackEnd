@@ -11,7 +11,7 @@ import java.util.List;
 public interface PrivilegeRepository extends JpaRepository<Privilege, Long> {
 
     @Query("select max(p.idPrivilege)  from Privilege p")
-    public Long nextValue();
+    Long nextValue();
 
     @Query("select  p from Privilege p where  p.utilisateur.idUtilisateur=:id")
     Collection<Privilege> findPrivilegeByIdUtilisateur(@Param("id") int idUtilisateur);

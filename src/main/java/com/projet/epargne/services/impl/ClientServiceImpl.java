@@ -1,107 +1,102 @@
 package com.projet.epargne.services.impl;
 
+import com.projet.epargne.exceptions.ObjectNotFoundException;
 import com.projet.epargne.dao.ClientRepository;
-import com.projet.epargne.dto.ClientDto;
+import com.projet.epargne.dto.ClientRequestDTO;
+import com.projet.epargne.dto.ClientResponseDTO;
 import com.projet.epargne.entities.Client;
 import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.services.interfaces.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
-    @Autowired
-    public ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+    private final ClientMapper clientMapper;
 
     @Override
-    public Iterable<ClientDto> getAll() {
+    public Iterable<ClientResponseDTO> getAll() {
         return StreamSupport.stream(clientRepository.findAllOrOrderByNumeroCarnet().spliterator(), false)
-                .map(ClientMapper.INSTANCE::entityToDto)
+                .map(ClientMapper.INSTANCE::fromClientToClientResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Iterable<ClientDto> findByNonOrPrenom(String keyword) {
+    public Iterable<ClientResponseDTO> findByNonOrPrenom(String keyword) {
         return StreamSupport.stream(clientRepository.findByNomLikeOrPrenomLike(keyword).spliterator(), false)
-                .map(ClientMapper.INSTANCE::entityToDto)
+                .map(ClientMapper.INSTANCE::fromClientToClientResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Iterable<ClientDto> findByEtat(boolean etat) {
+    public Iterable<ClientResponseDTO> findByEtat(boolean etat) {
         return StreamSupport.stream(clientRepository.findByEtat(etat).spliterator(), false)
-                .map(ClientMapper.INSTANCE::entityToDto)
+                .map(ClientMapper.INSTANCE::fromClientToClientResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Iterable<ClientDto> findBySoldeZero() {
+    public Iterable<ClientResponseDTO> findBySoldeZero() {
         return StreamSupport.stream(clientRepository.findBySoldeEqualsZero().spliterator(), false)
-                .map(ClientMapper.INSTANCE::entityToDto)
+                .map(ClientMapper.INSTANCE::fromClientToClientResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Iterable<ClientDto> findBySoldeGthZero() {
+    public Iterable<ClientResponseDTO> findBySoldeGthZero() {
         return StreamSupport.stream(clientRepository.findBySoldeGthZero().spliterator(), false)
-                .map(ClientMapper.INSTANCE::entityToDto)
+                .map(ClientMapper.INSTANCE::fromClientToClientResponseDTO)
                 .collect(Collectors.toList());
     }
 
-
     @Override
-    public ClientDto findById(Long id) {
-        Optional<Client> client = clientRepository.findById(id.intValue());
-        if (client.isPresent()) {
-            return ClientMapper.INSTANCE.entityToDto(client.get());
-        }
-        return null;
+    public ClientResponseDTO findById(int id) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Client not found with id : " + id));
+        return ClientMapper.INSTANCE.fromClientToClientResponseDTO(client);
     }
 
     @Override
-    public ClientDto save(ClientDto dto) {
-        Client client = ClientMapper.INSTANCE.dtoToEntity(dto);
+    @Transactional
+    public ClientResponseDTO save(ClientRequestDTO clientRequestDTO) {
+        Client client = ClientMapper.INSTANCE.dtoToEntity(clientRequestDTO);
         if (client != null) {
             client.setIdclient(next());
-            return ClientMapper.INSTANCE.entityToDto(clientRepository.save(client));
+            return ClientMapper.INSTANCE.fromClientToClientResponseDTO(clientRepository.save(client));
         }
         return null;
     }
 
     @Override
-    public ClientDto edit(ClientDto dto) {
-        Client client = ClientMapper.INSTANCE.dtoToEntity(dto);
+    @Transactional
+    public ClientResponseDTO edit(ClientResponseDTO clientResponseDTO) {
+        Client client = ClientMapper.INSTANCE.fromClientResponseDtoToClient(clientResponseDTO);
         if (client != null && client.getIdclient() != null) {
-            return ClientMapper.INSTANCE.entityToDto(clientRepository.save(client));
+            return ClientMapper.INSTANCE.fromClientToClientResponseDTO(clientRepository.save(client));
         }
         return null;
     }
 
     @Override
-    public ClientDto changeState(ClientDto client) {
-        Client c = ClientMapper.INSTANCE.dtoToEntity(client);
-        if (c != null && c.getIdclient() != null) {
-            return ClientMapper.INSTANCE.entityToDto(clientRepository.save(c));
-        }
-        return null;
+    public ClientResponseDTO changeState(int idClient, boolean state) {
+        Client client = clientRepository.findById(idClient).orElseThrow(() -> new ObjectNotFoundException("Client not found by Id : " + idClient));
+        client.setEtat(state);
+        return clientMapper.fromClientToClientResponseDTO(client);
     }
 
     @Override
-    public void deleteById(Long id) {
-        clientRepository.deleteById(id.intValue());
+    public void deleteById(int id) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Client not found with Id : " + id));
+        clientRepository.deleteById(id);
     }
 
-    @Override
-    public Integer nextValue() {
-        return this.next();
-    }
 
     private Integer next() {
         Integer nextValue = clientRepository.nexId();

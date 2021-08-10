@@ -1,14 +1,17 @@
 package com.projet.epargne.mapper;
 
 import com.projet.epargne.dto.CaisseDto;
+import com.projet.epargne.dto.CaisseRequestDTO;
+import com.projet.epargne.dto.CaisseResponseDTO;
 import com.projet.epargne.entities.Caisse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-@Mapper
+
+@Mapper(componentModel = "spring")
 public interface CaisseMapper {
-    public CaisseMapper INSTANCE = Mappers.getMapper(CaisseMapper.class);
+    CaisseDto entityToDto(Caisse caisse);
 
-    public CaisseDto entityToDto(Caisse caisse);
+    Caisse dtoToEntity(CaisseRequestDTO caisseRequestDTO);
 
-    public Caisse dtoToEntity(CaisseDto caisseDto);
+    CaisseResponseDTO fromCaisseToCaisseResponseDto(Caisse caisse);
 }

@@ -1,10 +1,11 @@
 package com.projet.epargne.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-
-public class ProfessionDto {
+@AllArgsConstructor
+public class ProfessionRequestDTO {
     private Integer idProfession;
     private String nom;
 }

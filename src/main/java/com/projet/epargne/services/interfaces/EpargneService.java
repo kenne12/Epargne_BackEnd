@@ -1,22 +1,22 @@
 package com.projet.epargne.services.interfaces;
 
-import com.projet.epargne.dto.RetraitRequest;
-import com.projet.epargne.dto.VersementRequest;
+import com.projet.epargne.dto.RetraitRequestDTO;
+import com.projet.epargne.dto.VersementRequestDTO;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.entities.Versement;
 
 public interface EpargneService {
 
-    public Versement saveVersement(VersementRequest versementRequest);
+     Versement saveVersement(VersementRequestDTO versementRequestDTO);
 
-    public Versement editVersement(VersementRequest versementRequest);
+     Versement editVersement(VersementRequestDTO versementRequestDTO);
 
-    public void deleteVersement(Long idVersement);
+     void deleteVersement(Long idVersement);
 
-    public Retrait saveRetrait(RetraitRequest retraitRequest);
+     Retrait saveRetrait(RetraitRequestDTO retraitRequestDTO);
 
-    public Retrait editRetrait(RetraitRequest retraitRequest);
+     Retrait editRetrait(RetraitRequestDTO retraitRequestDTO);
 
-    public void deleteRetrait(Long idRetrait);
+     void deleteRetrait(Long idRetrait);
 
 }

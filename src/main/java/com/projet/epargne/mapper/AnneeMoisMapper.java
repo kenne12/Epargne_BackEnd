@@ -8,7 +8,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface AnneeMoisMapper {
 
-    public AnneeMoisMapper INSTANCE = Mappers.getMapper(AnneeMoisMapper.class);
+    AnneeMoisMapper INSTANCE = Mappers.getMapper(AnneeMoisMapper.class);
 
     AnneeMoisDto entityToDto(AnneeMois anneeMois);
 

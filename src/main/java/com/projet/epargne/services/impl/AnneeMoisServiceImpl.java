@@ -5,8 +5,9 @@ import com.projet.epargne.dto.AnneeMoisDto;
 import com.projet.epargne.entities.AnneeMois;
 import com.projet.epargne.mapper.AnneeMoisMapper;
 import com.projet.epargne.services.interfaces.AnneeMoisService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,12 +15,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
 public class AnneeMoisServiceImpl implements AnneeMoisService {
 
-
-    @Autowired
-    private AnneeMoisRepository anneeMoisRepository;
-
+    private final AnneeMoisRepository anneeMoisRepository;
 
     @Override
     public Iterable<AnneeMoisDto> getAll() {
@@ -38,6 +37,7 @@ public class AnneeMoisServiceImpl implements AnneeMoisService {
     }
 
     @Override
+    @Transactional
     public AnneeMoisDto save(AnneeMoisDto dto) {
         AnneeMois anneeMois = AnneeMoisMapper.INSTANCE.dtoToEntity(dto);
         anneeMois.setId(this.nextId());
@@ -45,6 +45,7 @@ public class AnneeMoisServiceImpl implements AnneeMoisService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public AnneeMoisDto edit(AnneeMoisDto dto) {
         AnneeMois anneeMois = AnneeMoisMapper.INSTANCE.dtoToEntity(dto);
         if (anneeMois != null && anneeMois.getId() != null) {

@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 public interface MenuRepository extends JpaRepository<Menu, Integer> {
 
     @Query("select max(m.idmenu)  from Menu m")
-    public Integer nextValue();
+    Integer nextValue();
 }

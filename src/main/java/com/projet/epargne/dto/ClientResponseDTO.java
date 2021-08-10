@@ -1,15 +1,15 @@
 package com.projet.epargne.dto;
 
-import com.projet.epargne.entities.Retrait;
-import com.projet.epargne.entities.Versement;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.util.Collection;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class ClientDto {
+@NoArgsConstructor
+@Builder
+public class ClientResponseDTO {
     private Integer idclient;
     private String nom;
     private String prenom;
@@ -20,6 +20,4 @@ public class ClientDto {
     private boolean etat;
     private int fraisCarnet;
     private int numeroCarnet;
-    private Collection<Retrait> retraits;
-    private Collection<Versement> versements;
 }

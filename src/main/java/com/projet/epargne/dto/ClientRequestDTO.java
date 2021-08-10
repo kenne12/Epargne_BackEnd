@@ -1,15 +1,11 @@
 package com.projet.epargne.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class ClientRequest {
+public class ClientRequestDTO {
     private Integer idclient;
     private String nom;
     private String prenom;

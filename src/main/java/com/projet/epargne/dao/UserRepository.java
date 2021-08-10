@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.Query;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("select max (u.id) from User u")
-    public Integer nextValue();
+    Integer nextValue();
 }

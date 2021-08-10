@@ -1,4 +1,4 @@
-package com.projet.epargne;
+package com.projet.epargne.exceptions;
 
 public class ObjectNotFoundException extends RuntimeException {
 

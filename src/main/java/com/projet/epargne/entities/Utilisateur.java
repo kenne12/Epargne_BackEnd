@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Collection;
 
 @Entity
@@ -24,15 +25,17 @@ public class Utilisateur implements Serializable {
     private String nom;
     @Column(length = 100)
     private String prenom;
-    @Column(length = 100)
-    private String login;
+    @Column(length = 100 , name = "login")
+    private String username;
     @Column(length = 300)
     private String password;
     private String photo;
     private boolean actif;
+    private Instant dateCreation;
     @OneToMany(mappedBy = "utilisateur", fetch = FetchType.LAZY)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Collection<Privilege> privileges;
 
-
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<Role> roles;
 }

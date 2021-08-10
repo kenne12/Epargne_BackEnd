@@ -13,14 +13,14 @@ import java.util.List;
 public interface VersementRepository extends JpaRepository<Versement, Long> {
 
     @Query("select max(v.idVersement)  from Versement v")
-    public Long nextValue();
+    Long nextValue();
 
     @Query("select v from Versement  v where v.client.idclient=:idClient")
-    public List<Versement> findByIdClient(@Param("idClient") int idClient);
+    List<Versement> findByIdClient(@Param("idClient") int idClient);
 
     @Query("select v from Versement  v where v.client.idclient=:idClient and v.date between :dateDebut and :dateFin")
-    public List<Versement> findByIdClientIntervalDate(@Param("idClient") int idClient, @Param("dateDebut") Date dateDebut, @Param("dateFin") Date dateFin);
+    List<Versement> findByIdClientIntervalDate(@Param("idClient") int idClient, @Param("dateDebut") Date dateDebut, @Param("dateFin") Date dateFin);
 
     @Query("select v from Versement  v where v.date between :dateDebut and :dateFin")
-    public List<Versement> findByIntervalDate(@Param("dateDebut") Date dateDebut, @Param("dateFin") Date dateFin);
+    List<Versement> findByIntervalDate(@Param("dateDebut") Date dateDebut, @Param("dateFin") Date dateFin);
 }

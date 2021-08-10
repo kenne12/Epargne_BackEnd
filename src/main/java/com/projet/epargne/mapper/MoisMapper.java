@@ -8,9 +8,9 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface MoisMapper {
 
-    public MoisMapper INSTANCE = Mappers.getMapper(MoisMapper.class);
+    MoisMapper INSTANCE = Mappers.getMapper(MoisMapper.class);
 
-    public MoisDto entityToDto(Mois mois);
+    MoisDto entityToDto(Mois mois);
 
-    public Mois dtoToEntity(MoisDto moisDto);
+    Mois dtoToEntity(MoisDto moisDto);
 }

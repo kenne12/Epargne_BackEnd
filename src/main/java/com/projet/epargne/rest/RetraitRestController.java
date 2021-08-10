@@ -1,7 +1,7 @@
 package com.projet.epargne.rest;
 
 import com.projet.epargne.dto.RetraitDto;
-import com.projet.epargne.dto.RetraitRequest;
+import com.projet.epargne.dto.RetraitRequestDTO;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.services.impl.RetraitServiceImpl;
 import lombok.AllArgsConstructor;
@@ -56,7 +56,7 @@ public class RetraitRestController {
      * @return the response entity
      */
     @PostMapping("/add")
-    public ResponseEntity<RetraitDto> createArticle(@RequestBody RetraitRequest dto) {
+    public ResponseEntity<RetraitDto> createArticle(@RequestBody RetraitRequestDTO dto) {
         return new ResponseEntity<>(retraitService.save(dto), HttpStatus.CREATED);
         //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -68,7 +68,7 @@ public class RetraitRestController {
      * @return the response entity
      */
     @PutMapping("/edit/{id}")
-    public ResponseEntity<RetraitDto> updateRetrait(@PathVariable(name = "id") Long id, @RequestBody RetraitRequest dto) {
+    public ResponseEntity<RetraitDto> updateRetrait(@PathVariable(name = "id") Long id, @RequestBody RetraitRequestDTO dto) {
         return new ResponseEntity<>(retraitService.save(dto), HttpStatus.OK);
         //return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

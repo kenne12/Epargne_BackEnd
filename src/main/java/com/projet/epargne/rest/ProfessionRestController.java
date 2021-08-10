@@ -1,8 +1,8 @@
 package com.projet.epargne.rest;
 
-import com.projet.epargne.dto.ProfessionDto;
+import com.projet.epargne.dto.ProfessionRequestDTO;
+import com.projet.epargne.dto.ProfessionResponseDTO;
 import com.projet.epargne.services.interfaces.ProfessionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/profession")
 public class ProfessionRestController {
 
-    @Autowired
-    private ProfessionService professionService;
+    private final ProfessionService professionService;
+
+    public ProfessionRestController(ProfessionService professionService) {
+        this.professionService = professionService;
+    }
 
     /**
      * Gets the all profession.
@@ -22,7 +25,7 @@ public class ProfessionRestController {
      */
     @GetMapping(path = "/all")
     public @ResponseBody
-    Iterable<ProfessionDto> getAllRetrait() {
+    Iterable<ProfessionResponseDTO> getAll() {
         return professionService.getAll();
     }
 }

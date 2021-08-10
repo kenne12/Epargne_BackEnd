@@ -12,8 +12,8 @@ import java.util.List;
 public interface RetraitRepository extends JpaRepository<Retrait, Long> {
 
     @Query("select max(r.idRetrait)  from Retrait r")
-    public Long nextValue();
+    Long nextValue();
 
     @Query("select r from Retrait  r where r.client.idclient=:idClient")
-    public List<Retrait> findByIdClient(@Param("idClient") int idClient);
+    List<Retrait> findByIdClient(@Param("idClient") int idClient);
 }

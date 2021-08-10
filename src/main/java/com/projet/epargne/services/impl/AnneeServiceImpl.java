@@ -6,6 +6,7 @@ import com.projet.epargne.dto.AnneeMoisDto;
 import com.projet.epargne.entities.Annee;
 import com.projet.epargne.mapper.AnneeMapper;
 import com.projet.epargne.services.interfaces.AnneeService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,10 @@ import java.util.stream.StreamSupport;
 
 @Service
 @Transactional
+@RequiredArgsConstructor
 public class AnneeServiceImpl implements AnneeService {
 
-    @Autowired
-    private AnneeRepository anneeRepository;
+    private final AnneeRepository anneeRepository;
 
     @Override
     public Iterable<AnneeDto> getAll() {
@@ -39,6 +40,7 @@ public class AnneeServiceImpl implements AnneeService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public AnneeDto save(AnneeDto dto) {
         Annee annee = AnneeMapper.INSTANCE.dtoToEntity(dto);
         annee.setIdannee(this.nextId());
@@ -46,6 +48,7 @@ public class AnneeServiceImpl implements AnneeService {
     }
 
     @Override
+    @org.springframework.transaction.annotation.Transactional
     public AnneeDto edit(AnneeDto dto) {
         Annee annee = AnneeMapper.INSTANCE.dtoToEntity(dto);
         annee.setIdannee(dto.getIdannee());
@@ -53,6 +56,7 @@ public class AnneeServiceImpl implements AnneeService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         Optional<Annee> annee = anneeRepository.findById(id.intValue());
         if (annee.isPresent()) {
@@ -75,7 +79,4 @@ public class AnneeServiceImpl implements AnneeService {
             return nextId + 1;
         }
     }
-
-
-
 }

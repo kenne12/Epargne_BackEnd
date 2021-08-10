@@ -1,8 +1,8 @@
 package com.projet.epargne.rest;
 
-import com.projet.epargne.dto.ClientDto;
+import com.projet.epargne.dto.ClientRequestDTO;
+import com.projet.epargne.dto.ClientResponseDTO;
 import com.projet.epargne.services.interfaces.ClientService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +16,11 @@ import javax.websocket.server.PathParam;
 @RequestMapping("/api/client")
 public class ClientRestController {
 
-    @Autowired
-    private ClientService clientService;
+    private final ClientService clientService;
+
+    public ClientRestController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     /**
      * Gets the all clients.
@@ -26,7 +29,7 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all")
     public @ResponseBody
-    Iterable<ClientDto> getAllClient() {
+    Iterable<ClientResponseDTO> getAllClient() {
         return clientService.getAll();
     }
 
@@ -38,7 +41,7 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all/search/nomOrPrenom")
     public @ResponseBody
-    Iterable<ClientDto> searchClientByNomOrPrenom(@PathParam("keyword") String keyword) {
+    Iterable<ClientResponseDTO> searchClientByNomOrPrenom(@PathParam("keyword") String keyword) {
         return clientService.findByNonOrPrenom("%" + keyword + "%");
     }
 
@@ -49,7 +52,7 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all/search/etat")
     public @ResponseBody
-    Iterable<ClientDto> searchClientByEtat(@PathParam("etat") boolean etat) {
+    Iterable<ClientResponseDTO> searchClientByEtat(@PathParam("etat") boolean etat) {
         return clientService.findByEtat(etat);
     }
 
@@ -61,7 +64,7 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all/search/soldeZero")
     public @ResponseBody
-    Iterable<ClientDto> searchClientBySoldeZero() {
+    Iterable<ClientResponseDTO> searchClientBySoldeZero() {
         return clientService.findBySoldeZero();
     }
 
@@ -72,7 +75,7 @@ public class ClientRestController {
      */
     @GetMapping(path = "/all/search/soldeGthZero")
     public @ResponseBody
-    Iterable<ClientDto> searchClientBySoldeGthZero() {
+    Iterable<ClientResponseDTO> searchClientBySoldeGthZero() {
         return clientService.findBySoldeGthZero();
     }
 
@@ -84,8 +87,8 @@ public class ClientRestController {
      * @return the client by id
      */
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClientById(@PathVariable("id") Long id) {
-        ClientDto clientData = clientService.findById(id);
+    public ResponseEntity<ClientResponseDTO> getClientById(@PathVariable("id") Integer id) {
+        ClientResponseDTO clientData = clientService.findById(id);
         if (clientData != null) {
             return new ResponseEntity<>(clientData, HttpStatus.OK);
         } else {
@@ -100,7 +103,7 @@ public class ClientRestController {
      * @return the response entity
      */
     @PostMapping("/add")
-    public ResponseEntity<ClientDto> createClient(@RequestBody ClientDto dto) {
+    public ResponseEntity<ClientResponseDTO> createClient(@RequestBody ClientRequestDTO dto) {
         if (dto.getIdclient() != null) {
             return new ResponseEntity<>(clientService.save(dto), HttpStatus.CREATED);
         }
@@ -114,7 +117,7 @@ public class ClientRestController {
      * @return the response entity
      */
     @PutMapping("/edit/{id}")
-    public ResponseEntity<ClientDto> updateClient(@PathVariable(name = "id") Integer id, @RequestBody ClientDto dto) {
+    public ResponseEntity<ClientResponseDTO> updateClient(@PathVariable(name = "id") Integer id, @RequestBody ClientRequestDTO dto) {
         if (dto != null && dto.getIdclient() != null) {
             return new ResponseEntity<>(clientService.save(dto), HttpStatus.OK);
         } else {
@@ -129,10 +132,10 @@ public class ClientRestController {
      * @param dto the dto
      * @return the response entity
      */
-    @PutMapping("/changeState/{id}")
-    public ResponseEntity<ClientDto> changeState(@PathVariable("id") Integer id, @RequestBody ClientDto dto) {
-        if (dto != null && dto.getIdclient() != null) {
-            return new ResponseEntity<>(clientService.changeState(dto), HttpStatus.OK);
+    @PutMapping("/changeState/{id}/")
+    public ResponseEntity<ClientResponseDTO> changeState(@PathVariable("id") Integer id, @PathParam(value = "etat")  boolean etat   ) {
+        if ( id != null ) {
+            return new ResponseEntity<>(clientService.changeState(id , etat), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -145,7 +148,7 @@ public class ClientRestController {
      * @return the response entity
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteClient(@PathVariable("id") Long id) {
+    public ResponseEntity<HttpStatus> deleteClient(@PathVariable("id") Integer id) {
         if (id != null) {
             clientService.deleteById(id);
             return new ResponseEntity<>(HttpStatus.OK);

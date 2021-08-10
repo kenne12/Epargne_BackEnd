@@ -1,12 +1,24 @@
 package com.projet.epargne.services.interfaces;
 
-import com.projet.epargne.dto.UtilisateurDto;
+import com.projet.epargne.dto.UtilisateurRequestDTO;
+import com.projet.epargne.dto.UtilisateurResponseDTO;
+import org.springframework.data.domain.Page;
 
-public interface UtilisateurService extends GenericService<UtilisateurDto> {
+public interface UtilisateurService {
 
-    Integer nextValue();
+    Iterable<UtilisateurResponseDTO> getAll();
 
-    Iterable<UtilisateurDto> findByEtat(boolean etat);
+    Page<UtilisateurResponseDTO> getAll(int page, int size);
 
-    UtilisateurDto findByUserName(String userName);
+    UtilisateurResponseDTO findById(Long id);
+
+    UtilisateurResponseDTO save(UtilisateurRequestDTO utilisateurRequestDTO);
+
+    UtilisateurResponseDTO edit(UtilisateurResponseDTO dto);
+
+    Iterable<UtilisateurResponseDTO> findByEtat(boolean etat);
+
+    void deleteById(int id);
+
+    UtilisateurResponseDTO findByUserName(String userName);
 }

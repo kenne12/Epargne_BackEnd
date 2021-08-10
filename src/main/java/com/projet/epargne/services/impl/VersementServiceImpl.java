@@ -1,13 +1,14 @@
 package com.projet.epargne.services.impl;
 
-import com.projet.epargne.ObjectNotFoundException;
+import com.projet.epargne.dto.VersementResponseDTO;
+import com.projet.epargne.exceptions.ObjectNotFoundException;
 import com.projet.epargne.dao.ClientRepository;
 import com.projet.epargne.dao.VersementRepository;
-import com.projet.epargne.dto.VersementDto;
-import com.projet.epargne.dto.VersementRequest;
+import com.projet.epargne.dto.VersementRequestDTO;
 import com.projet.epargne.entities.Versement;
 import com.projet.epargne.mapper.VersementMapper;
 import com.projet.epargne.services.interfaces.EpargneService;
+import com.projet.epargne.services.interfaces.VersementService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,28 +22,31 @@ import java.util.stream.StreamSupport;
 @Service
 @Transactional
 @AllArgsConstructor
-public class VersementServiceImpl {
+public class VersementServiceImpl implements VersementService {
 
     private final VersementRepository versementRepository;
     private final EpargneService epargneService;
-    private final ClientRepository clientRepository;
 
+    @Override
     public Page<Versement> getAll(int page, int size) {
         return versementRepository.findAll(PageRequest.of(page, size));
     }
 
-    public VersementDto findById(Long id) {
+    @Override
+    public VersementResponseDTO findById(Long id) {
         Versement versement = versementRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("Versement not found with id" + id));
         return VersementMapper.INSTANCE.entityToDto(versement);
     }
 
-    public VersementDto save(VersementRequest versementRequest) {
-        Versement v = epargneService.saveVersement(versementRequest);
+    @Override
+    public VersementResponseDTO save(VersementRequestDTO versementRequestDTO) {
+        Versement v = epargneService.saveVersement(versementRequestDTO);
         return VersementMapper.INSTANCE.entityToDto(v);
     }
 
-    public VersementDto edit(VersementRequest versementRequest) {
-        Versement v = epargneService.editVersement(versementRequest);
+    @Override
+    public VersementResponseDTO edit(VersementRequestDTO versementRequestDTO) {
+        Versement v = epargneService.editVersement(versementRequestDTO);
         return VersementMapper.INSTANCE.entityToDto(v);
     }
 
@@ -50,30 +54,18 @@ public class VersementServiceImpl {
         epargneService.deleteVersement(id);
     }
 
-
-    public Iterable<VersementDto> findByIdClientIntervalDate(int idClient, Date dateDebut, Date dateFin) {
+    @Override
+    public Iterable<VersementResponseDTO> findByIdClientBetwenToDates(int idClient, Date dateDebut, Date dateFin) {
         return StreamSupport.stream(versementRepository.findByIdClientIntervalDate(idClient, dateDebut, dateFin).spliterator(), false)
                 .map(VersementMapper.INSTANCE::entityToDto)
                 .collect(Collectors.toList());
     }
 
-
-    public Iterable<VersementDto> findByIntervalDate(Date dateDebut, Date dateFin) {
+    @Override
+    public Iterable<VersementResponseDTO> findByIntervalDate(Date dateDebut, Date dateFin) {
         return StreamSupport.stream(versementRepository.findByIntervalDate(dateDebut, dateFin).spliterator(), false)
                 .map(VersementMapper.INSTANCE::entityToDto)
                 .collect(Collectors.toList());
     }
 
-
-    public Long nextValue() {
-        return this.next();
-    }
-
-    private Long next() {
-        Long next = versementRepository.nextValue();
-        if (next == null) {
-            return 1L;
-        }
-        return next + 1l;
-    }
 }

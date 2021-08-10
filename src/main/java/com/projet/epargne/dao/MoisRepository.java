@@ -9,8 +9,8 @@ import java.util.List;
 public interface MoisRepository extends JpaRepository<Mois, Integer> {
 
     @Query("select max(m.idmois)  from Mois m")
-    public Integer nextValue();
+    Integer nextValue();
 
     @Query("select m from Mois m order by m.numero")
-    public List<Mois> findAllOrder();
+    List<Mois> findAllOrder();
 }

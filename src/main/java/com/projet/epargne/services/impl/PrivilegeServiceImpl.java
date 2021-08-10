@@ -5,8 +5,8 @@ import com.projet.epargne.dto.PrivilegeDto;
 import com.projet.epargne.entities.Privilege;
 import com.projet.epargne.mapper.PrivilegeMapper;
 import com.projet.epargne.services.interfaces.PrivilegeService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,8 +16,11 @@ import java.util.stream.StreamSupport;
 @Transactional
 public class PrivilegeServiceImpl implements PrivilegeService {
 
-    @Autowired
-    private PrivilegeRepository privilegeRepository;
+    private final PrivilegeRepository privilegeRepository;
+
+    public PrivilegeServiceImpl(PrivilegeRepository privilegeRepository) {
+        this.privilegeRepository = privilegeRepository;
+    }
 
     @Override
     public Iterable<PrivilegeDto> getAll() {
@@ -45,7 +48,7 @@ public class PrivilegeServiceImpl implements PrivilegeService {
     @Override
     public PrivilegeDto edit(PrivilegeDto dto) {
         Privilege p = PrivilegeMapper.INSTANCE.dtoToEntity(dto);
-        if (p != null && p.getIdPrivilege() != null) {
+        if (p != null) {
             return PrivilegeMapper.INSTANCE.entityToDto(privilegeRepository.save(p));
         }
         return null;
@@ -63,17 +66,12 @@ public class PrivilegeServiceImpl implements PrivilegeService {
                 .collect(Collectors.toList());
     }
 
-    public Long nextValue() {
-        return nextId();
-    }
-
     private Long nextId() {
         Long nextId = privilegeRepository.nextValue();
-        if (nextId == null) {
-            nextId = 1l;
+        if (nextId == null || nextId == 0) {
+            return nextId = 1l;
         } else {
-            nextId += 1;
+            return nextId += 1;
         }
-        return nextId;
     }
 }

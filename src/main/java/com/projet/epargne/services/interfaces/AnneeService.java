@@ -4,7 +4,7 @@ import com.projet.epargne.dto.AnneeDto;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface AnneeService extends GenericService<AnneeDto> {
+public interface AnneeService extends GenericService<AnneeDto , AnneeDto> {
 
     Iterable<AnneeDto> findByEtat(boolean etat);
 }

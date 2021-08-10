@@ -1,9 +1,9 @@
 package com.projet.epargne.services.impl;
 
-import com.projet.epargne.ObjectNotFoundException;
+import com.projet.epargne.exceptions.ObjectNotFoundException;
 import com.projet.epargne.dao.RetraitRepository;
 import com.projet.epargne.dto.RetraitDto;
-import com.projet.epargne.dto.RetraitRequest;
+import com.projet.epargne.dto.RetraitRequestDTO;
 import com.projet.epargne.entities.Retrait;
 import com.projet.epargne.mapper.RetraitMapper;
 import com.projet.epargne.services.interfaces.EpargneService;
@@ -31,13 +31,13 @@ public class RetraitServiceImpl {
         return RetraitMapper.INSTANCE.entityToDto(retrait);
     }
 
-    public RetraitDto save(RetraitRequest retraitRequest) {
-        Retrait r = epargneService.saveRetrait(retraitRequest);
+    public RetraitDto save(RetraitRequestDTO retraitRequestDTO) {
+        Retrait r = epargneService.saveRetrait(retraitRequestDTO);
         return RetraitMapper.INSTANCE.entityToDto(r);
     }
 
-    public RetraitDto edit(RetraitRequest retraitRequest) {
-        Retrait r = epargneService.editRetrait(retraitRequest);
+    public RetraitDto edit(RetraitRequestDTO retraitRequestDTO) {
+        Retrait r = epargneService.editRetrait(retraitRequestDTO);
         return RetraitMapper.INSTANCE.entityToDto(r);
     }
 

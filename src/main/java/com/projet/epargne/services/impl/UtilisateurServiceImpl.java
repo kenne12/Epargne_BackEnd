@@ -1,105 +1,133 @@
 package com.projet.epargne.services.impl;
 
+import com.projet.epargne.exceptions.ObjectNotFoundException;
 import com.projet.epargne.dao.UtilisateurRepository;
-import com.projet.epargne.dto.UtilisateurDto;
+import com.projet.epargne.dto.UtilisateurResponseDTO;
+import com.projet.epargne.dto.UtilisateurRequestDTO;
 import com.projet.epargne.entities.Utilisateur;
 import com.projet.epargne.mapper.UtilisateurMapper;
 import com.projet.epargne.services.interfaces.UtilisateurService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+@AllArgsConstructor
 @Transactional
-public class UtilisateurServiceImpl implements UtilisateurService {
+@Slf4j
+public class UtilisateurServiceImpl implements UtilisateurService , UserDetailsService {
 
-    @Autowired
-    public BCryptPasswordEncoder bCryptPasswordEncoder;
-
-
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Autowired
-    private UtilisateurRepository utilisateurRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final UtilisateurRepository utilisateurRepository;
+    private UtilisateurMapper utilisateurMapper;
 
     @Override
-    public Iterable<UtilisateurDto> getAll() {
+    public Iterable<UtilisateurResponseDTO> getAll() {
         return StreamSupport.stream(utilisateurRepository.findAll().spliterator(), false)
                 .map(UtilisateurMapper.INSTANCE::entityToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UtilisateurDto findById(Long id) {
-        Optional<Utilisateur> utilisateur = utilisateurRepository.findById(id.intValue());
-        if (utilisateur.isPresent()) {
-            return UtilisateurMapper.INSTANCE.entityToDto(utilisateur.get());
-        }
+    public Page<UtilisateurResponseDTO> getAll(int page, int size) {
+        Page<UtilisateurResponseDTO> pageable;
+        utilisateurRepository.findAll(PageRequest.of(page, size)).stream().map(UtilisateurMapper.INSTANCE::entityToDto).collect(Collectors.toList());
         return null;
     }
 
     @Override
-    public UtilisateurDto save(UtilisateurDto dto) {
+    public UtilisateurResponseDTO findById(Long id) {
+        Utilisateur utilisateur = utilisateurRepository.findById(id.intValue()).orElseThrow(() -> new ObjectNotFoundException("User not found with id : " + id));
+        return UtilisateurMapper.INSTANCE.entityToDto(utilisateur);
+    }
+
+
+    @Override
+    public UtilisateurResponseDTO save(UtilisateurRequestDTO utilisateurRequest) {
+
+        if (!utilisateurRequest.getPassword().equals(utilisateurRequest.getRepeatPassword())) {
+            throw new ObjectNotFoundException("Veuillez saisir deux mots de passe identiques");
+        }
+
+        Utilisateur utilisateur = utilisateurMapper.fromRequestDtoToEntity(utilisateurRequest);
+        utilisateur.setPassword(passwordEncoder.encode(utilisateur.getPassword()));
+        utilisateur.setDateCreation(Instant.now());
+        utilisateur.setIdUtilisateur(this.next());
+        return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
+    }
+
+    @Override
+    public UtilisateurResponseDTO edit(UtilisateurResponseDTO dto) {
         Utilisateur utilisateur = UtilisateurMapper.INSTANCE.dtoToEntity(dto);
         if (utilisateur != null) {
-            utilisateur.setIdUtilisateur(this.next());
-            utilisateur.setPassword(bCryptPasswordEncoder().encode(utilisateur.getPassword()));
-            //utilisateur.setPassword(new ShaHash().hash(utilisateur.getPassword()));
             return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
         }
         return null;
     }
 
     @Override
-    public UtilisateurDto edit(UtilisateurDto dto) {
-        Utilisateur utilisateur = UtilisateurMapper.INSTANCE.dtoToEntity(dto);
-        if (utilisateur != null) {
-            return UtilisateurMapper.INSTANCE.entityToDto(utilisateurRepository.save(utilisateur));
-        }
-        return null;
-    }
-
-    @Override
-    public Iterable<UtilisateurDto> findByEtat(boolean etat) {
+    public Iterable<UtilisateurResponseDTO> findByEtat(boolean etat) {
         return StreamSupport.stream(utilisateurRepository.findAllByActif(etat).spliterator(), false)
                 .map(UtilisateurMapper.INSTANCE::entityToDto)
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public void deleteById(Long id) {
-        utilisateurRepository.deleteById(id.intValue());
-    }
 
     @Override
-    public Integer nextValue() {
-        return this.next();
+    public void deleteById(int id) {
+        utilisateurRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("User not found with id : " + id));
+        utilisateurRepository.deleteById(id);
     }
 
     private Integer next() {
-        Integer nextValue = utilisateurRepository.nextValue();
-        if (nextValue == null || nextValue == 0) {
-            return nextValue = 1;
+        try {
+            Integer nextValue = utilisateurRepository.nextValue();
+            if (nextValue != null) {
+                return (nextValue + 1);
+            }
+            return 1;
+        } catch (Exception e) {
+            return 1;
         }
-        return nextValue + 1;
+    }
+
+    public UtilisateurResponseDTO findByUserName(String userName) {
+        Utilisateur utilisateur = utilisateurRepository.findByUsername(userName);
+        if (utilisateur!=null) {
+            return UtilisateurMapper.INSTANCE.entityToDto(utilisateur);
+        }
+        return null;
     }
 
     @Override
-    public UtilisateurDto findByUserName(String userName) {
-        Optional<Utilisateur> utilisateur = utilisateurRepository.findByUserName(userName);
-        if (utilisateur.isPresent()) {
-            return UtilisateurMapper.INSTANCE.entityToDto(utilisateur.get());
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Utilisateur user = utilisateurRepository.findByUsername(username);
+        if (user == null) {
+            log.error("user not found in the database");
+            throw new UsernameNotFoundException("user not found in the database");
+        } else {
+            log.info("User found in the database {}", username);
         }
-        return null;
 
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        user.getRoles().forEach(role -> {
+            authorities.add(new SimpleGrantedAuthority(role.getName()));
+        });
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 }

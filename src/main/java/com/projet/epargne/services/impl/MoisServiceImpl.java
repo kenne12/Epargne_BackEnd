@@ -7,6 +7,7 @@ import com.projet.epargne.entities.Mois;
 import com.projet.epargne.mapper.ClientMapper;
 import com.projet.epargne.mapper.MoisMapper;
 import com.projet.epargne.services.interfaces.MoisService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,10 @@ import java.util.stream.StreamSupport;
 import static org.hibernate.cache.spi.support.SimpleTimestamper.next;
 
 @Service
+@RequiredArgsConstructor
 public class MoisServiceImpl implements MoisService {
 
-    @Autowired
-    private MoisRepository moisRepository;
+    private final MoisRepository moisRepository;
 
     @Override
     public Iterable<MoisDto> getAll() {
@@ -30,8 +31,8 @@ public class MoisServiceImpl implements MoisService {
     }
 
     @Override
-    public MoisDto findById(Long id) {
-        Optional<Mois> mois = moisRepository.findById(id.intValue());
+    public MoisDto findById(int id) {
+        Optional<Mois> mois = moisRepository.findById(id);
         if (mois.isPresent()) {
             return MoisMapper.INSTANCE.entityToDto(mois.get());
         }
@@ -54,7 +55,7 @@ public class MoisServiceImpl implements MoisService {
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(int id) {
 
     }
 

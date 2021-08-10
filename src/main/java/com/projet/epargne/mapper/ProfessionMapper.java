@@ -1,16 +1,17 @@
 package com.projet.epargne.mapper;
 
-import com.projet.epargne.dto.ProfessionDto;
+import com.projet.epargne.dto.ProfessionRequestDTO;
+import com.projet.epargne.dto.ProfessionResponseDTO;
 import com.projet.epargne.entities.Profession;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ProfessionMapper {
 
-    ProfessionMapper INSTANCE = Mappers.getMapper(ProfessionMapper.class);
+    public ProfessionRequestDTO entityToDto(Profession profession);
 
-    public ProfessionDto entityToDto(Profession profession);
+    public Profession fromRequestDtoToEnity(ProfessionRequestDTO dto);
 
-    public Profession dtoToEntity(ProfessionDto dto);
+    public ProfessionResponseDTO fromEntityToResponseDto(Profession profession);
 }
